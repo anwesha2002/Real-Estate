@@ -1,0 +1,68 @@
+@import "../base";
+
+.sidebar{
+  //width: 15%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+
+  &.open{
+    width: fit-content;
+
+  }
+
+  ul{
+    margin-left: -20%;
+    margin-right: 20px;
+  }
+  li{
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: padding-left 0.4s ease-in-out;
+
+
+    &.active{
+      //background-color: #606065 ;
+      background-color: #cce6ff;
+      color: black;
+    }
+
+    &:hover{
+      background-color: #b3d9ff;
+
+    }
+    
+    
+  }
+}
+
+@media (max-width: $breakpoint-medium) {
+  .sidebar{
+    ul{
+      margin: 0;
+    }
+    li{
+      display: block;
+      margin: 0;
+      &.open{
+        width: 100%;
+        span{
+          display: block;
+        }
+      }
+      span{
+        display: none;
+      }
+    }
+  }
+}
+
+@media (max-width: $breakpoint-small){
+  .sidebar{
+    li{
+      padding-left: 0;
+    }
+  }
+}
