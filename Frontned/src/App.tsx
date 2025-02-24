@@ -25,6 +25,7 @@ import {CreateProperty} from "./Components/Property/CreateProperty.tsx";
 import {EditProperty} from "./Components/Property/EditProperty.tsx";
 import {AgentProfile} from "./Components/Agents/AgentProfile.tsx";
 import {Stack} from "@mui/material";
+import {Login} from "./Pages/Login.tsx";
 
 interface resourceProps {
     name :string
@@ -94,8 +95,10 @@ function App() {
                 {/*hello*/}
                 <HomeScreen>
                     <Routes>
+                        <Route path="/" element={<Login/>}/>
                         <Route path="/dashboard" element={<Dashboard/>}/>
                         <Route path="/property" element={<Properties/>}/>
+                        <Route path="/property/show/:id" element={<PropertyDetails/>}/>
                         <Route path="/property/create" element={<CreateProperty/>}/>
                         <Route path="/agent" element={<Agents/>}/>
                         <Route path="/review" element={<Reviews/>}/>
