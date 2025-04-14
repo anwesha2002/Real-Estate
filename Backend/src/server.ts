@@ -1,6 +1,5 @@
 import app from "./app";
 import env from "./util/validEnv";
-import cors from "cors"
 import connectDb from "./mongodb/connect";
 // const PORT = 5000
 

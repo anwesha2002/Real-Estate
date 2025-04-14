@@ -1,4 +1,3 @@
-import ApexOptions from "apexcharts"
 
 export const totalRevenueSeries = [
     {
@@ -11,7 +10,7 @@ export const totalRevenueSeries = [
     },
 ]
 
-export const TotalRevenueOptions : ApexOptions = {
+export const TotalRevenueOptions: any  = {
     charts : {
         type : 'bar',
         toolbar : {

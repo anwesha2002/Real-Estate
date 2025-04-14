@@ -1,27 +1,27 @@
 export const PropertyReferralsInfo = [
     {
-        title : "dfdf",
-        percentage : 65,
-        color : 'primary'
-    },
-    {
-        title : "dfdf",
+        title : "Social Media",
         percentage : 64,
-        color : 'primary'
+        color: "#6C5DD3",
     },
     {
-        title : "dfdf",
-        percentage : 25,
-        color : 'primary'
-    },
-    {
-        title : "dfdf",
+        title : "Marketplace",
         percentage : 40,
-        color : 'primary'
+        color: "#7FBA7A",
     },
     {
-        title : "dfdf",
-        percentage : 40,
-        color : 'primary'
+        title : "Websites",
+        percentage : 50,
+        color: "#FFCE73",
+    },
+    {
+        title : "Digital Ads",
+        percentage : 80,
+        color: "#FFA2C0",
+    },
+    {
+        title : "Others",
+        percentage : 10,
+        color: "#F45252",
     }
 ]

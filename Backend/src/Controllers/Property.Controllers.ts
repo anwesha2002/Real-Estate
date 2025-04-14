@@ -5,7 +5,7 @@ import { v2 as cloudinary } from 'cloudinary';
 import PropertyModel , {PropertyType} from "../Models/Property"
 import UserModel , {userType} from "../Models/users"
 import mongoose , {Schema , SortOrder} from "mongoose";
-import {query , RequestHandler} from "express";
+import { RequestHandler} from "express";
 
 cloudinary.config({
     cloud_name: env.CLOUDINARY_CLOUD_NAME,
@@ -123,6 +123,8 @@ const createProperty : RequestHandler<unknown, unknown, CreatePropertyBody, unkn
         await user.save({session})
 
         await session.commitTransaction()
+
+        localStorage.setItem("tokens",JSON.stringify(user))
 
         res.status(201).send(newProperty)
 

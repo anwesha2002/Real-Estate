@@ -13,11 +13,12 @@
   }
 
   ul{
-    margin-left: -20%;
-    margin-right: 20px;
+    //margin-left: -20%;
+    //margin-right: 20px;
+
   }
-  li{
-    padding: 10px 20px;
+  .li{
+    //padding: 10px 10px 20px 0;
     border-radius: 10px;
     cursor: pointer;
     transition: padding-left 0.4s ease-in-out;
@@ -30,7 +31,7 @@
     }
 
     &:hover{
-      background-color: #b3d9ff;
+      //background-color: #b3d9ff;
 
     }
     
@@ -43,7 +44,7 @@
     ul{
       margin: 0;
     }
-    li{
+    .li{
       display: block;
       margin: 0;
       &.open{
@@ -52,17 +53,19 @@
           display: block;
         }
       }
-      span{
-        display: none;
-      }
+      //span{
+      //  display: none;
+      //}
     }
   }
 }
 
 @media (max-width: $breakpoint-small){
   .sidebar{
-    li{
-      padding-left: 0;
-    }
+    //li{
+    //  padding-left: 0;
+    //}
+    width: 0;
+    background-color: white;
   }
 }

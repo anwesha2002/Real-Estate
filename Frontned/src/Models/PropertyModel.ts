@@ -6,7 +6,8 @@ export interface PropertyModel {
     price :  string,
     location : string,
     // propertyImage : {name : string, url : string},
-    photo : any,
-    fileName : string
-    email : string
+    photo? : any,
+    fileName? : string
+    email? : string
+    _id? : string
 }

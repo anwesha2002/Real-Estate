@@ -1,14 +1,14 @@
-import {resources} from "../App.tsx";
 import {UserModels} from "../Models/UserModels.ts";
 import {PropertyModel} from "../Models/PropertyModel.ts";
+import {ChatModels} from "../Models/chatModels.ts";
 
 
 type getPropertiesQuery = {
-    order : string,
-    title : string,
-    type : string,
-    pageSize : number,
-    start : number
+    order? : string,
+    title? : string,
+    type? : string,
+    pageSize? : number,
+    start? : number
 }
 
 export async function login( credentials : UserModels ) : Promise<UserModels> {
@@ -141,4 +141,90 @@ export async function UpdateProperty(id : any , propertyDetails : PropertyModel 
     // }
 
     return response.json()
+}
+
+export async function EditUserProfile({ id }: { id: string } , userDetails: UserModels) : Promise<UserModels> {
+
+    console.log(userDetails)
+    console.log(id)
+
+    const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+        method : "PATCH",
+        headers : { 'Content-Type' : 'application/json' },
+        body : JSON.stringify(userDetails)
+    })
+
+    if(!response.ok){
+        throw new Error("can't be edited")
+    }
+
+    const updatedUserData = await response.json();
+    return updatedUserData;
+
+
+}
+
+export async function getAllAgents() : Promise<UserModels[]> {
+    const response = await fetch(`http://localhost:5000/api/users`, {
+        method : "GET",
+        headers : { 'Content-Type' : 'application/json' },
+    })
+
+    return response.json()
+}
+
+export async function getAgentsById(id : string) : Promise<UserModels> {
+    const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+        method : "GET",
+        headers : { 'Content-Type' : 'application/json' },
+    })
+
+    return response.json()
+}
+
+export async function sendMessage(id : string, message : ChatModels)  {
+
+    console.log(id)
+    console.log(message)
+    console.log(message)
+
+    const response = await fetch(`http://localhost:5000/api/chat/${id}`, {
+        method : "POST",
+        headers : { 'Content-Type' : 'application/json' },
+        body : JSON.stringify(message)
+    })
+
+    if(!response.ok){
+        throw new Error("error occured")
+    }
+
+    const updatedUserData = await response.json();
+
+
+    console.log(updatedUserData)
+
+    return updatedUserData;
+
+}
+
+export async function getChat(id : string)  {
+
+    console.log(id)
+
+    const response = await fetch(`http://localhost:5000/api/chat/${id}`, {
+        method : "GET",
+        headers : { 'Content-Type' : 'application/json' },
+    })
+
+    if(!response.ok){
+        throw new Error("error occured")
+    }
+
+    const updatedUserData = await response.json();
+
+
+    console.log(updatedUserData)
+
+    return updatedUserData;
+
 }

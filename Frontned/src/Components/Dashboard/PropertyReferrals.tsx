@@ -1,8 +1,12 @@
 import {Box , LinearProgress , Stack , Typography} from "@mui/material";
 import {PropertyReferralsInfo} from "../../Data/Dummy_Property.ts";
 
-
-function ProgressBar({title, percentage, color}){
+interface ProgressBarPrps {
+    title : string,
+    percentage : number,
+    color : string
+}
+function ProgressBar({title, percentage, color} : ProgressBarPrps){
     // const normalise = (value) => ((value - MIN) * 100) / (MAX - MIN);
 
     return(
@@ -12,7 +16,9 @@ function ProgressBar({title, percentage, color}){
                 <Typography fontSize={16} fontWeight={500} color="#11142d">{percentage}</Typography>
             </Stack>
             <Box width="100%" mt={2}>
-                <LinearProgress color={color} variant="determinate" value={percentage} />
+                <LinearProgress sx={{'& .MuiLinearProgress-bar': {
+                        backgroundColor: color
+                    }, bgcolor : "#e4e8ef" }}  variant="determinate" value={percentage} />
             </Box>
         </Box>
     )

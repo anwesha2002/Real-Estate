@@ -1,10 +1,15 @@
-import {HomeScreen} from "../Screen/HomeScreen.tsx";
 import {PieChart} from "../Components/Dashboard/Piechart.tsx";
-import {Box , Stack} from "@mui/material";
+import {Box , Stack , Typography} from "@mui/material";
 import {TotalRevenue} from "../Components/Dashboard/TotalRevenue.tsx";
 import {PropertyReferrals} from "../Components/Dashboard/PropertyReferrals.tsx";
+import {useEffect , useState} from "react";
+import {PropertyCard} from "../Components/Property/PropertyCard.tsx";
+import {getProperties} from "../Network/Document_api.ts";
+import {PropertyModel} from "../Models/PropertyModel.ts";
 
 export function Dashboard() {
+
+    const [allProperties , setAllProperties] = useState<PropertyModel[]>([])
 
     const PieCharts = [
         {
@@ -33,22 +38,55 @@ export function Dashboard() {
         }
     ]
 
+    useEffect(()=>{
+
+        (async()=>{
+            await getProperties( { order : "asc", title : "", type : "all", pageSize : 10, start :  0  } ).then(res=>{
+                return res as PropertyModel[]
+            } )
+                .then((data)=>setAllProperties(data))
+        }) ()
+    },[])
+
     return (
-        <HomeScreen>
-            <h4 className="fw-light fs-4 p-1">Dashboard</h4>
-            <Box flex={1} display="flex" flexWrap="wrap" gap={ 4 } px="10px" mt={3}>
-                {PieCharts.map(item=>(
-                    <PieChart {...item}/>
-                ))}
+        // <HomeScreen>
+            <Box>
+                <h4 className="fw-light fs-4 p-1">Dashboard</h4>
+                <Box flex={1} display="flex" flexWrap="wrap" gap={ 4 }  mt={3}>
+                    {PieCharts.map(item=>(
+                        <PieChart {...item}/>
+                    ))}
+                </Box>
+                <Box flex={1}  display="flex" flexWrap="wrap">
+                    <Stack  gap={2} mt="25px" width="100%"  direction={{xs : "column" , lg : "row"}}>
+                        <TotalRevenue/>
+                        <PropertyReferrals/>
+                    </Stack>
+                </Box>
+                <Box
+                    flex={1}
+                    borderRadius="15px"
+                    padding="20px"
+                    bgcolor="#fcfcfc"
+                    display="flex"
+                    flexDirection="column"
+                    minWidth="100%"
+                    mt="25px"
+                >
+                    <Typography fontSize="18px" fontWeight={600} color="#11142d">
+                        Latest Properties
+                    </Typography>
+
+                    <Box mt={2.5} sx={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                        {allProperties.map((property) => (
+                            <PropertyCard {...property}/>
+                        ))}
+                    </Box>
+                </Box>
+
             </Box>
-            <Box flex={1} mx={2} display="flex" flexWrap="wrap">
-                <Stack  gap={2} mt="25px" width="100%"  direction={{xs : "column" , lg : "row"}}>
-                    <TotalRevenue/>
-                    <PropertyReferrals/>
-                </Stack>
-            </Box>
-            {/*<div >Dashboard</div>*/}
-        </HomeScreen>
+
+        // </HomeScreen>
     );
 }
 

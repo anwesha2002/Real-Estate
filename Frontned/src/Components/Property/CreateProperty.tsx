@@ -1,31 +1,28 @@
-import {Resolver , useForm} from "react-hook-form";
+import {useForm} from "react-hook-form";
 import {
     Box ,
-    FilledInput ,
     FormControl ,
-    FormGroup , FormHelperText ,
-    FormLabel , MenuItem ,
-    OutlinedInput , Select , Stack ,
-    TextareaAutosize ,
-    TextField , Typography
+    FormGroup ,
+    FormHelperText ,
+    FormLabel  ,
+    MenuItem ,
+    OutlinedInput ,
+    Select ,
+    Stack ,
+    TextareaAutosize  ,
+    Typography
 } from "@mui/material";
 import {PropertyModel} from "../../Models/PropertyModel.ts";
-import {data , useLocation , useNavigate} from "react-router-dom";
+import {useLocation , useNavigate} from "react-router-dom";
 import Button from "@mui/material/Button";
-import {info} from "sass";
 import {CustomButton} from "../CustomButton.tsx";
 import {useState} from "react";
 import {createProperty , UpdateProperty} from "../../Network/Document_api.ts";
-import {toast, ToastContainer} from "react-toastify";
-
-type PropertyTypes = {
-    propertyToEdit? : PropertyModel
-}
+import {toast , ToastContainer} from "react-toastify";
 
 
 
-
-export function CreateProperty({propertyToEdit} : PropertyTypes) {
+export function CreateProperty() {
 
     const navigate = useNavigate()
 
@@ -58,6 +55,7 @@ export function CreateProperty({propertyToEdit} : PropertyTypes) {
             propertyType : location?.state?.details?.propertyType || "",
             price : location?.state?.details?.price || "",
             location : location?.state?.details?.location || "",
+            fileName : location?.state?.details?.fileName || "",
             // propertyImage : {name : "", url : ""},
             // photo : "",
             // email : ""
@@ -68,20 +66,23 @@ export function CreateProperty({propertyToEdit} : PropertyTypes) {
 
         if(!propertyImage.name) alert("enter property image")
 
-        const user = JSON.parse(localStorage.getItem("user"))
+        const userData = localStorage.getItem("tokens")
+
+        if(!userData) return
+
+        const user = JSON.parse(userData)
 
         if(location.state)
-            await UpdateProperty({id : location?.state?.id },{...data, photo :  propertyImage.url, fileName : propertyImage.name , email :  user.email}).then(()=> {
+            await UpdateProperty({id : location?.state?.id },{...data, photo :  propertyImage.url, fileName : propertyImage.name , email :  user.email})
+                .then(()=> {
                 toast("Property updated successfully", {
                     type : "success",
                     theme : "colored",
                     position : "top-center",
                     draggable: true,
                 })
-                setTimeout(()=>{
-                    navigate ( "/property" )
-                }, 2000)
             })
+                .then(()=>navigate ( "/property" ))
         else
             await createProperty({...data, photo :  propertyImage.url, fileName : propertyImage.name , email :  user.email})
             .then(()=>navigate("/property"))
@@ -92,8 +93,10 @@ export function CreateProperty({propertyToEdit} : PropertyTypes) {
 
     }
 
-    const handleImageChange = (file : File) => {
-        const reader = (readFile  : File) => new Promise<string>((resolve,reject)=>{
+    const handleImageChange = (file : FileList | null) => {
+
+        if(!file) return
+        const reader = (readFile  : File) => new Promise<string>((resolve)=>{
             const fileReader =  new FileReader();
             // console.log(fileReader)
             fileReader.onload = () => resolve(fileReader.result as string)
@@ -102,9 +105,9 @@ export function CreateProperty({propertyToEdit} : PropertyTypes) {
 
         })
 
-        reader(file)
+        reader(file[0])
             .then((result : string) => setPropertyImage({
-            name : file?.name , url : result
+            name : file[0]?.name , url : result
         }))
             .catch((error)=>alert(error))
 
@@ -118,46 +121,48 @@ export function CreateProperty({propertyToEdit} : PropertyTypes) {
                 <FormGroup className="  gap-4 ">
                     <FormControl className="gap-1">
                         <FormLabel htmlFor="title">Enter Property Name</FormLabel>
-                        <OutlinedInput color="info" type="text" id="title" name="title"  variant="outlined" required {...register("title")}  />
-                    {errors?.title && <FormHelperText>{errors.title.message}</FormHelperText>}
+                        <OutlinedInput error={!!errors.title} color="info" type="text" id="title" required {...register("title")}  />
+                    {errors?.title && <FormHelperText error>{errors.title.message?.toString()}</FormHelperText>}
                     </FormControl>
-                    <FormControl className="gap-1">
+                    <FormControl className="gap-1" error={!!errors.description}>
                         <FormLabel>Enter Description</FormLabel>
-                        <TextareaAutosize minRows={5} placeholder="write your description" color="info" type="text"  style={{width : "100%" , borderRadius : 6 , padding : 10 , background : "transparent" , fontSize : "16px", color : '#919191'}} required {...register("description")}  />
-                        {errors?.description && <FormHelperText>{errors.description.message}</FormHelperText>}
+                        <TextareaAutosize  minRows={5} placeholder="write your description" color="info"   style={{width : "100%" , borderRadius : 6 , padding : 10 , background : "transparent" , fontSize : "16px", color : '#919191'}} required {...register("description")}  />
+                        {errors?.description && <FormHelperText error>{errors.description.message?.toString()}</FormHelperText>}
                     </FormControl>
                     <Stack direction="row" className="gap-4" flex={1}>
                         <FormControl className="gap-1" sx={{flex : 1}}>
                             <FormLabel htmlFor="propertyType">Enter Property Type</FormLabel>
-                            <Select style={{textTransform : "capitalize"}} variant="outlined" color="info" displayEmpty required defaultValue="apartment" inputProps={ { ...register ( "propertyType" ) } }>
+                            <Select error={!!errors.propertyType} style={{textTransform : "capitalize"}}  color="info" displayEmpty required defaultValue="apartment" inputProps={ { ...register ( "propertyType" ) } }>
                                 {["apartment","villa","house","farmHouse" , "condos" , "townhouse", "duplex" , "studio" , "chalet"].map(item=>
                                 <MenuItem value={item} style={{textTransform : "capitalize"}}>
                                     {item}
                                 </MenuItem>)
                                 }
                             </Select>
-                            {errors?.propertyType && <FormHelperText>{errors.propertyType.message}</FormHelperText>}
+                            {errors?.propertyType && <FormHelperText error>{errors.propertyType.message?.toString()}</FormHelperText>}
                         </FormControl>
                         <FormControl className="gap-1" sx={{flex : 1}}>
                             <FormLabel htmlFor="price">Enter Property Price</FormLabel>
-                            <OutlinedInput color="info" type="text" id="title" name="price"  variant="outlined" required {...register("price")}  />
-                            {errors?.price && <FormHelperText>{errors.price.message}</FormHelperText>}
+                            <OutlinedInput error={!!errors.price} color="info" type="text" id="price"  required {...register("price")}  />
+                            {errors?.price && <FormHelperText error>{errors.price.message?.toString()}</FormHelperText>}
                         </FormControl>
                     </Stack>
 
-                    <FormControl className="gap-1" sx={{flex : 1}}>
+                    <FormControl  className="gap-1" sx={{flex : 1}}>
                         <FormLabel htmlFor="location">Enter Location</FormLabel>
-                        <OutlinedInput color="info" type="text" id="location" name="price"  variant="outlined" required {...register("location")}  />
-                        {errors?.location && <FormHelperText>{errors.location.message}</FormHelperText>}
+                        <OutlinedInput error={!!errors.location} color="info" type="text" id="location"  required {...register("location")}  />
+                        {errors?.location && <FormHelperText >{errors.location.message?.toString()}</FormHelperText>}
                     </FormControl>
 
                     <Stack direction="column" gap={1} justifyContent="center" mb={2}>
                         <Stack direction="row" gap={2}>
                             <FormLabel><Typography fontSize={16} fontWeight={500} my="10px">Property Photo</Typography></FormLabel>
-                            <Button component="label" sx={ { width : "fit-content", textTransform : "capitalize", fontSize : 16,  }} >
-                                Upload *
-                                <input  onChange={(e)=>handleImageChange(e.target?.files[0])} hidden accept="image/*" type="file" />
-                            </Button>
+
+                                <Button component="label" sx={ { width : "fit-content", textTransform : "capitalize", fontSize : 16,  }} >
+                                    Upload *
+                                    <input required  onChange={(e)=>handleImageChange(e.target?.files)} hidden accept="image/*" type="file" />
+                                </Button>
+
                         </Stack>
                         <Typography fontSize={14} color="#808191" sx={{wordBreak : "break-all"}}>{propertyImage?.name}</Typography>
                     </Stack>

@@ -1,5 +1,4 @@
 import {Box , MenuItem , Select , SelectChangeEvent , Stack , TextField , Typography} from "@mui/material";
-import {Button} from "react-bootstrap";
 import {BiPlus} from "react-icons/bi";
 import {useNavigate} from "react-router-dom";
 import {useEffect , useRef , useState} from "react";
@@ -7,22 +6,17 @@ import {getProperties} from "../Network/Document_api.ts";
 import {PropertyModel} from "../Models/PropertyModel.ts";
 import {PropertyCard} from "../Components/Property/PropertyCard.tsx";
 import {CustomButton} from "../Components/CustomButton.tsx";
-import {MdArrowDownward , MdArrowUpward} from "react-icons/md";
-import {MdArrowDropDown} from 'react-icons/md';
+import {MdArrowDownward , MdArrowDropDown , MdArrowUpward} from "react-icons/md";
 
 const ORDER = ['asc', 'desc'] as const
 
-type sort = {
-    order  : typeof ORDER,
-    field : string
-}
 export function Properties() {
 
     const navigate = useNavigate()
     const [ properties, setProperties ] = useState<PropertyModel[]>([])
     const [currentPage, setCurrentPage] = useState(1)
     const initialRef = useRef(0)
-    const [pageSize, setPageSize] = useState(0)
+    const [pageSize, setPageSize] = useState<any>(0)
     var items_per_page = pageSize ? pageSize : 14
     let pageCount = Math.ceil(initialRef.current / items_per_page)
     const [order, setOrder] = useState<typeof ORDER[number]>("asc");
@@ -39,7 +33,7 @@ export function Properties() {
 
     useEffect ( () => {
         const start = currentPage > 1 ?  ( (currentPage - 1) * items_per_page   ) : 0 ;
-        if(pageSize === 'Default') {
+        if(pageSize == 'Default') {
             setPageSize ( 14 )
         }
         (async()=>{
@@ -103,7 +97,7 @@ export function Properties() {
             <Stack direction="row" justifyContent="space-between" p={2}>
 
                 {/*<span ><BiPlus/></span>*/}
-                <CustomButton icon={<BiPlus/>} sx={{backgroundColor:"#475be8", color:"#fcfcfc", display : "flex", alignItems : "center", justifyContent : "center"}} variant="contained" onClick={()=>{navigate("/property/create")}} title="Add Property"/>
+                <CustomButton icon={<BiPlus/>} sx={{backgroundColor:"#475be8", color:"#fcfcfc", display : "flex", alignItems : "center", justifyContent : "center"}} variant="contained" handleClick={()=>{navigate("/property/create")}} title="Add Property"/>
             </Stack>
             <Box mt="20px" mx={2} sx={{display : 'flex' , flexWrap : "wrap" , gap : 3}}>
                 {properties.map((items)=>(
@@ -114,7 +108,7 @@ export function Properties() {
             {properties.length>0 && <Box display="flex" flexWrap="wrap" mx={ 2 } mt="20px" gap={ 2 } alignItems="center">
                 <CustomButton
                     title="Previous"
-                    onClick={ () => {
+                    handleClick={ () => {
                         setCurrentPage ( (prevState) => prevState - 1 )
                     } }
                     sx={ { backgroundColor : "#475be8" , color : "#fcfcfc" } }
@@ -124,7 +118,7 @@ export function Properties() {
                      gap="5px">Page{ ' ' }<strong>{ currentPage } of { pageCount }</strong></Box>
                 <CustomButton
                     title="Next"
-                    onClick={ () => {
+                    handleClick={ () => {
                         setCurrentPage ( (prevState) => prevState + 1 )
                     } }
                     sx={ { backgroundColor : "#475be8" , color : "#fcfcfc" } }

@@ -5,6 +5,7 @@ import cors from "cors";
 import userModel from "./Models/users"
 import userRoutes from "./Routes/User.routes";
 import propertyRoutes from "./Routes/Property.routes";
+import chatRoutes from "./Routes/Chat.routes";
 
 const app = express()
 app.use(cors())
@@ -21,5 +22,6 @@ app.get('/', async (req,res)=>{
 
 app.use('/api/users', userRoutes)
 app.use('/api/properties', propertyRoutes)
+app.use('/api/chat', chatRoutes)
 
 export default app

@@ -3,10 +3,10 @@ import {
     FormControl ,
     FormGroup ,
     FormHelperText ,
-    FormLabel , MenuItem ,
-    OutlinedInput , Select ,
+    FormLabel ,
+    OutlinedInput ,
     Stack ,
-    TextareaAutosize , Typography
+    Typography
 } from "@mui/material";
 import Button from "@mui/material/Button";
 import {CustomButton} from "../Components/CustomButton.tsx";
@@ -14,6 +14,7 @@ import {useForm} from "react-hook-form";
 import {UserModels} from "../Models/UserModels.ts";
 import {login} from "../Network/Document_api.ts";
 import {useState} from "react";
+import {Link , useNavigate} from "react-router-dom";
 
 export function Login() {
     
@@ -26,90 +27,70 @@ export function Login() {
     })
 
     const [photo, setPhoto] = useState<string>("")
+
+    const navigate = useNavigate()
     
     async function onSubmit(data : UserModels) {
         // console.log( { ...data, avatar : photo })
        await login ( { ...data, avatar : photo } )
            .then ( (res )  => localStorage.setItem("tokens", `${JSON.stringify(res)}`) )
+           .then(()=>navigate("/dashboard"))
            .catch((err)=>console.log(err))
     }
 
-    function handleImageChange(file : File){
-        const reader = (readFile : File) => new Promise<string>((resolve, reject)=>{
+    function handleImageChange(file : FileList | null){
+
+        if(!file) return
+        const reader = (readFile : File) => new Promise<string>((resolve)=>{
             const fileReader = new FileReader()
             fileReader.onload = () => resolve(fileReader.result as string)
             fileReader.readAsDataURL(readFile)
         })
 
-        reader(file)
+        reader(file[0])
             .then((result: string )=>setPhoto(result))
             .catch(console.error)
     }
     
     
     return (
-        <Box flex={1} justifyContent="center" alignItems="center">
-            Sign-Up
-            <form className="bg-white m-3 p-4 w-50 rounded-3" onSubmit={handleSubmit(onSubmit)}>
-                <FormGroup className="  gap-4 ">
-                    <FormControl className="gap-1">
-                        <FormLabel htmlFor="name">Enter Name</FormLabel>
-                        <OutlinedInput color="info" type="text" id="name" name="name"  variant="outlined" required {...register("name")}  />
-                        {errors?.name && <FormHelperText>{errors.name.message}</FormHelperText>}
-                    </FormControl>
-                    <FormControl className="gap-1">
-                        <FormLabel htmlFor="email">Enter Email</FormLabel>
-                        <OutlinedInput color="info" type="text" id="email" name="email"  variant="outlined" required {...register("email")}  />
-                        {errors?.email && <FormHelperText>{errors.email.message}</FormHelperText>}
-                    </FormControl>
+        <Box height="100vh" display="flex" justifyContent="center" flexDirection="column" alignItems="center">
+            <Typography fontSize={22} fontWeight={600} >
+                Sign-Up
+            </Typography>
+            <Box className="border border-1 " mt={5} width="50%" sx={ { overflowX : "hidden",  bgcolor : "#b3cccc"}}  justifyContent="center" alignItems="center">
 
-                    <FormControl className="gap-1">
-                        <FormLabel><Typography fontSize={16} fontWeight={500} my="10px">Avatar</Typography></FormLabel>
-                        <Button component="label" sx={ { width : "fit-content", textTransform : "capitalize", fontSize : 16,  }} >
-                            Upload *
-                            <input {...register("avatar")} onChange={(e)=>handleImageChange(e.target?.files[0])} hidden accept="image/*" type="file" />
-                        </Button>
-                        {errors?.avatar && <FormHelperText>{errors.avatar.message}</FormHelperText>}
-                    </FormControl>
-                    
-                    {/*<Stack direction="row" className="gap-4" flex={1}>*/}
-                    {/*    <FormControl className="gap-1" sx={{flex : 1}}>*/}
-                    {/*        <FormLabel htmlFor="propertyType">Enter Property Name</FormLabel>*/}
-                    {/*        <Select style={{textTransform : "capitalize"}} variant="outlined" color="info" displayEmpty required defaultValue="apartment" {...register("propertyType")}>*/}
-                    {/*            {["apartment","villa","house","farmHouse" , "condos" , "townhouse", "duplex" , "studio" , "chalet"].map(item=>*/}
-                    {/*                <MenuItem value={item} style={{textTransform : "capitalize"}}>*/}
-                    {/*                    {item}*/}
-                    {/*                </MenuItem>)*/}
-                    {/*            }*/}
-                    {/*        </Select>*/}
-                    {/*        {errors?.propertyType && <FormHelperText>{errors.propertyType.message}</FormHelperText>}*/}
-                    {/*    </FormControl>*/}
-                    {/*    <FormControl className="gap-1" sx={{flex : 1}}>*/}
-                    {/*        <FormLabel htmlFor="price">Enter Property Price</FormLabel>*/}
-                    {/*        <OutlinedInput color="info" type="text"  name="price"  variant="outlined" required {...register("price")}  />*/}
-                    {/*        {errors?.price && <FormHelperText>{errors.price.message}</FormHelperText>}*/}
-                    {/*    </FormControl>*/}
-                    {/*</Stack>*/}
+                <form className="bg-white m-3  p-4 w-auto rounded-3" onSubmit={handleSubmit(onSubmit)}>
+                    <FormGroup className="  gap-4 ">
+                        <FormControl className="gap-1">
+                            <FormLabel htmlFor="name">Enter Name</FormLabel>
+                            <OutlinedInput color="info" type="text" id="name"  required {...register("name")}  />
+                            {errors?.name && <FormHelperText>{errors.name.message}</FormHelperText>}
+                        </FormControl>
+                        <FormControl className="gap-1">
+                            <FormLabel htmlFor="email">Enter Email</FormLabel>
+                            <OutlinedInput color="info" type="text" id="email"  required {...register("email")}  />
+                            {errors?.email && <FormHelperText>{errors.email.message}</FormHelperText>}
+                        </FormControl>
 
-                    {/*<FormControl className="gap-1" sx={{flex : 1}}>*/}
-                    {/*    <FormLabel htmlFor="location">Enter Location</FormLabel>*/}
-                    {/*    <OutlinedInput color="info" type="text" id="location" name="price"  variant="outlined" required {...register("location")}  />*/}
-                    {/*    {errors?.location && <FormHelperText>{errors.location.message}</FormHelperText>}*/}
-                    {/*</FormControl>*/}
-                    
-                    {/*<Stack direction="column" gap={1} justifyContent="center" mb={2}>*/}
-                    {/*    <Stack direction="row" gap={2}>*/}
-                    {/*        <FormLabel><Typography fontSize={16} fontWeight={500} my="10px">Property Photo</Typography></FormLabel>*/}
-                    {/*        <Button component="label" sx={ { width : "fit-content", textTransform : "capitalize", fontSize : 16,  }} >*/}
-                    {/*            Upload **/}
-                    {/*            <input {...register("propertyImage")} onChange={(e)=>handleImageChange(e.target?.files[0])} hidden accept="image/*" type="file" />*/}
-                    {/*        </Button>*/}
-                    {/*    </Stack>*/}
-                    {/*    <Typography fontSize={14} color="#808191" sx={{wordBreak : "break-all"}}>{propertyImage?.name}</Typography>*/}
-                    {/*</Stack>*/}
-                </FormGroup>
-                <CustomButton type="submit" title={isSubmitting ? "Signing Up..." : "Sign-Up"}  variant="contained" sx={{backgroundColor : "#475be8"}} />
-            </form>
+                        <FormControl className="gap-1">
+                            <FormLabel><Typography fontSize={16} fontWeight={500} my="10px">Avatar</Typography></FormLabel>
+                            <Button component="label" sx={ { width : "fit-content", textTransform : "capitalize", fontSize : 16,  }} >
+                                Upload *
+                                <input {...register("avatar")} required={true} onChange={(e)=>handleImageChange(e?.target?.files)} hidden accept="image/*" type="file" />
+                            </Button>
+                            {errors?.avatar && <FormHelperText>{errors.avatar.message}</FormHelperText>}
+                        </FormControl>
+                    </FormGroup>
+                    <Stack direction="row" alignItems="center" gap={2}>
+                        <CustomButton type="submit" title={isSubmitting ? "Signing Up..." : "Sign-Up"}  variant="contained" sx={{backgroundColor : "#475be8"}} />
+                        <div>
+                            or already have an account?
+                            <Link className="ms-1" to="signin">Sign-In</Link>
+                        </div>
+                    </Stack>
+                </form>
+            </Box>
         </Box>
     );
 }

@@ -1,10 +1,19 @@
-import {PropertyModel} from "../../Models/PropertyModel.ts";
-import {Box , Card , CardContent , CardMedia  , Stack , Typography} from "@mui/material";
+import {Box , Card , CardContent , CardMedia , Stack , Typography} from "@mui/material";
 import {MdPlace} from "react-icons/md";
-import {ElementType } from "react";
-import {Link } from "react-router-dom";
+import {ElementType} from "react";
+import {Link} from "react-router-dom";
+import {PropertyModel} from "../../Models/PropertyModel.ts";
 
-export function PropertyCard({title, photo, price, location, _id } ) {
+export interface PropertyType extends PropertyModel{
+    // title : string,
+    // photo : string,
+    // price : string,
+    // location : string,
+    _id? : string
+}
+
+export function PropertyCard({title, photo, price, location, _id } : PropertyType ) {
+
     return (
         <Card
             component={Link as ElementType}
