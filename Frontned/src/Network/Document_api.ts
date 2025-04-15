@@ -11,12 +11,14 @@ type getPropertiesQuery = {
     start? : number
 }
 
+const api_route = "https://real-estate-ueor.onrender.com"
+
 export async function login( credentials : UserModels ) : Promise<UserModels> {
     // const {name, email, avatar} = credentials
 
 
     // if(credentials){
-        const response = await fetch('http://localhost:5000/api/users',{
+        const response = await fetch(`${api_route}/api/users`,{
             method : "POST",
             headers : { 'Content-Type' : 'application/json' },
             body : JSON.stringify(credentials)
@@ -55,7 +57,7 @@ export async function createProperty( propertyDetails : PropertyModel ) : Promis
 
 
     // if(credentials){
-    const response = await fetch('http://localhost:5000/api/properties',{
+    const response = await fetch(`${api_route}/api/properties`,{
         method : "POST",
         headers : { 'Content-Type' : 'application/json' },
         body : JSON.stringify(propertyDetails)
@@ -84,7 +86,7 @@ export async function createProperty( propertyDetails : PropertyModel ) : Promis
 }
 
 export async function getProperties({order, title, type, pageSize, start} : getPropertiesQuery) : Promise<PropertyModel[]>{
-    const response = await fetch(`http://localhost:5000/api/properties?_end=${pageSize}&_sort=price&_order=${order}&_title_like=${title}&propertyType=${ type === "all" ? "" : type}&_start=${start}`,{
+    const response = await fetch(`${api_route}/api/properties?_end=${pageSize}&_sort=price&_order=${order}&_title_like=${title}&propertyType=${ type === "all" ? "" : type}&_start=${start}`,{
         method : "GET",
         headers : { 'Content-Type' : 'application/json' },
     })
@@ -93,7 +95,7 @@ export async function getProperties({order, title, type, pageSize, start} : getP
 }
 
 export async function getPropertyDetails(id : string) {
-    const response = await fetch(`http://localhost:5000/api/properties/${id}`, {
+    const response = await fetch(`${api_route}/api/properties/${id}`, {
         method : "GET",
         headers : { 'Content-Type' : 'application/json' },
     })
@@ -102,7 +104,7 @@ export async function getPropertyDetails(id : string) {
 }
 
 export async function DeleteProperty(id : string){
-    const response = await fetch(`http://localhost:5000/api/properties/${id}`, {
+    const response = await fetch(`${api_route}/api/properties/${id}`, {
         method : "DELETE",
         headers : { 'Content-Type' : 'application/json' },
     })
@@ -117,7 +119,7 @@ export async function UpdateProperty(id : any , propertyDetails : PropertyModel 
     console.log(id.id )
     console.log(propertyDetails)
 
-    const response = await fetch(`http://localhost:5000/api/properties/${id.id}`, {
+    const response = await fetch(`${api_route}/api/properties/${id.id}`, {
         method : "PATCH",
         headers : { 'Content-Type' : 'application/json' },
         body : JSON.stringify(propertyDetails)
@@ -148,7 +150,7 @@ export async function EditUserProfile({ id }: { id: string } , userDetails: User
     console.log(userDetails)
     console.log(id)
 
-    const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+    const response = await fetch(`${api_route}/api/users/${id}`, {
         method : "PATCH",
         headers : { 'Content-Type' : 'application/json' },
         body : JSON.stringify(userDetails)
@@ -165,7 +167,7 @@ export async function EditUserProfile({ id }: { id: string } , userDetails: User
 }
 
 export async function getAllAgents() : Promise<UserModels[]> {
-    const response = await fetch(`http://localhost:5000/api/users`, {
+    const response = await fetch(`${api_route}/api/users`, {
         method : "GET",
         headers : { 'Content-Type' : 'application/json' },
     })
@@ -174,7 +176,7 @@ export async function getAllAgents() : Promise<UserModels[]> {
 }
 
 export async function getAgentsById(id : string) : Promise<UserModels> {
-    const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+    const response = await fetch(`${api_route}/api/users/${id}`, {
         method : "GET",
         headers : { 'Content-Type' : 'application/json' },
     })
@@ -188,7 +190,7 @@ export async function sendMessage(id : string, message : ChatModels)  {
     console.log(message)
     console.log(message)
 
-    const response = await fetch(`http://localhost:5000/api/chat/${id}`, {
+    const response = await fetch(`${api_route}/api/chat/${id}`, {
         method : "POST",
         headers : { 'Content-Type' : 'application/json' },
         body : JSON.stringify(message)
@@ -211,7 +213,7 @@ export async function getChat(id : string)  {
 
     console.log(id)
 
-    const response = await fetch(`http://localhost:5000/api/chat/${id}`, {
+    const response = await fetch(`${api_route}/api/chat/${id}`, {
         method : "GET",
         headers : { 'Content-Type' : 'application/json' },
     })
