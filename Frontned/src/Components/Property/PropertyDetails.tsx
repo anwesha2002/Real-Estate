@@ -5,7 +5,6 @@ import {DeleteProperty , getPropertyDetails} from "../../Network/Document_api.ts
 import {PropertyModel} from "../../Models/PropertyModel.ts";
 import {MdChatBubble , MdDelete , MdEdit , MdPhone , MdPlace} from "react-icons/md";
 import logo from "../../assets/img.png"
-import {checkImage} from "../../Util/checkImage.ts";
 import {UserModels} from "../../Models/UserModels.ts";
 import {CustomButton} from "../CustomButton.tsx";
 import {toast , ToastContainer} from 'react-toastify';

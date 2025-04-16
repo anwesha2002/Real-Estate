@@ -11,7 +11,6 @@ import {
     Typography , useMediaQuery , useTheme
 } from "@mui/material";
 import {PropertyCard} from "../Property/PropertyCard.tsx";
-import {checkImage} from "../../Util/checkImage.ts";
 import {MdEmail , MdPages , MdPhone} from "react-icons/md";
 import {ModalDialog} from "react-bootstrap";
 import {useState} from "react";
