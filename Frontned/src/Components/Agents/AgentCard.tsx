@@ -1,9 +1,10 @@
 import {UserModels} from "../../Models/UserModels.ts";
 import {Link} from "react-router-dom";
-import {Box , Stack , Typography} from "@mui/material";
+import { Box , Stack , Typography} from "@mui/material";
 // import {checkImage} from "../../Util/checkImage.ts";
-import {ElementType} from "react";
+import {ElementType } from "react";
 import {MdEmail , MdLocationCity , MdPhone , MdPlace} from "react-icons/md";
+import { useCheckImage} from "../../Util/checkImage.ts";
 
 interface agentCardProperties extends UserModels{
     index : number,
@@ -19,6 +20,9 @@ export function AgentCard({_id, name, avatar, email, allProperties, index, lengt
     const currentUser  = JSON.parse(userData)
 
     console.log(_id)
+
+
+    const validImage = useCheckImage(avatar , "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png")
 
 
     return (
@@ -40,9 +44,12 @@ export function AgentCard({_id, name, avatar, email, allProperties, index, lengt
         >
             <img
                 src={
-                    avatar === "string"
-                        ? avatar
-                        : "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                    // checkImage(avatar)
+                    //         ? avatar
+                    //         : "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+
+                    // avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                    validImage
                 }
                 alt="user"
                 width={90}

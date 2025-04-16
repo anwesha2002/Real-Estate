@@ -8,6 +8,7 @@ import logo from "../../assets/img.png"
 import {UserModels} from "../../Models/UserModels.ts";
 import {CustomButton} from "../CustomButton.tsx";
 import {toast , ToastContainer} from 'react-toastify';
+import {useCheckImage} from "../../Util/checkImage.ts";
 
 interface detailsType extends PropertyModel{
     creator : UserModels
@@ -33,6 +34,8 @@ export function PropertyDetails() {
     const user = JSON.parse(userData)
 
     const isCurrentUser = user?.email === details?.creator?.email
+
+    const validImage = useCheckImage(details?.creator?.avatar , logo)
 
     function handleDeleteProperty(id : string){
         const response = confirm("Are you sure you want to delete this property?")
@@ -132,7 +135,7 @@ export function PropertyDetails() {
                 <Box  width="100%" flex={1}  maxWidth={ {lg : 326 , xs : "100%"}} display="flex" flexDirection="column" gap="20px">
                     <Stack p={2} width="100%" direction="column" justifyContent="center" alignItems="center" border="1px solid #E4E4E4" borderRadius={2}>
                         <Stack mt={2} justifyContent="center" alignItems="center" textAlign="center">
-                            <img src={ details?.creator?.avatar === "string" ? details?.creator?.avatar : logo}  alt="avatar"
+                            <img src={ validImage }  alt="avatar"
                                  width={90}
                                  height={90}
                                  style={{

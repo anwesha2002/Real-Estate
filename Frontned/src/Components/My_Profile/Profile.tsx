@@ -18,6 +18,7 @@ import Button from "@mui/material/Button";
 import {CustomButton} from "../CustomButton.tsx";
 import { useForm} from "react-hook-form";
 import {EditUserProfile} from "../../Network/Document_api.ts";
+import {useCheckImage} from "../../Util/checkImage.ts";
 
 
 // type FormValues = {
@@ -67,6 +68,8 @@ export function Profile( { profile, type } : ProfileProps) {
     const [photo, setPhoto] = useState<string>(user?.avatar)
 
     console.log(profile?.name)
+
+    const validImage = useCheckImage(profile?.avatar , "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png")
 
 
     const { register, handleSubmit, formState : { isSubmitting, errors} } = useForm({
@@ -151,13 +154,10 @@ export function Profile( { profile, type } : ProfileProps) {
                             gap="20px"
                         >
                             <img
-                                src={
-                                    profile?.avatar === "string"
-                                        ? profile?.avatar
-                                        : "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
-                                }
+                                src={ validImage }
                                 width={78}
                                 height={78}
+                                style={{  objectFit: "cover", aspectRatio  : "1:1" }}
                                 alt="user_profile"
                                 className="my_profile_user-img rounded rounded-circle"
                             />
