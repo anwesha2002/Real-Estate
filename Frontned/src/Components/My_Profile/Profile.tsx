@@ -153,7 +153,7 @@ export function Profile( { profile, type } : ProfileProps) {
                         >
                             <img
                                 src={
-                                    checkImage(profile?.avatar)
+                                    profile?.avatar === "string"
                                         ? profile?.avatar
                                         : "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
                                 }
