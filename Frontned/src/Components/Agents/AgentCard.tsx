@@ -1,7 +1,7 @@
 import {UserModels} from "../../Models/UserModels.ts";
 import {Link} from "react-router-dom";
 import {Box , Stack , Typography} from "@mui/material";
-import {checkImage} from "../../Util/checkImage.ts";
+// import {checkImage} from "../../Util/checkImage.ts";
 import {ElementType} from "react";
 import {MdEmail , MdLocationCity , MdPhone , MdPlace} from "react-icons/md";
 
