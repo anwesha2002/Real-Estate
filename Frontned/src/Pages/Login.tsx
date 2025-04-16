@@ -58,7 +58,7 @@ export function Login() {
             <Typography fontSize={22} fontWeight={600} >
                 Sign-Up
             </Typography>
-            <Box className="border border-1 " mt={5} width="50%" sx={ { overflowX : "hidden",  bgcolor : "#b3cccc"}}  justifyContent="center" alignItems="center">
+            <Box className="border border-1 " mt={5} width={{ lg : "50%", md :  "auto"  }} sx={ { overflowX : "hidden",  bgcolor : "#b3cccc"}}  justifyContent="center" alignItems="center">
 
                 <form className="bg-white m-3  p-4 w-auto rounded-3" onSubmit={handleSubmit(onSubmit)}>
                     <FormGroup className="  gap-4 ">

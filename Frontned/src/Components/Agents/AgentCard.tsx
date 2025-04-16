@@ -40,7 +40,7 @@ export function AgentCard({_id, name, avatar, email, allProperties, index, lengt
         >
             <img
                 src={
-                    checkImage(avatar)
+                    avatar
                         ? avatar
                         : "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
                 }

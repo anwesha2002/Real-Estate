@@ -8,7 +8,7 @@ import {
     FormLabel ,
     Modal , OutlinedInput ,
     Stack ,
-    Typography
+    Typography , useMediaQuery , useTheme
 } from "@mui/material";
 import {PropertyCard} from "../Property/PropertyCard.tsx";
 import {checkImage} from "../../Util/checkImage.ts";
@@ -51,6 +51,9 @@ type ProfileProps = {
 // }
 
 export function Profile( { profile, type } : ProfileProps) {
+    const theme = useTheme()
+
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"))
 
     const userData = localStorage.getItem("tokens")
 
@@ -273,11 +276,11 @@ export function Profile( { profile, type } : ProfileProps) {
                     <ModalDialog
 
                         // variant="outlined"
-                        className="bg-secondary-subtle w-50"
+                        className={ `bg-secondary-subtle  ${isSmallScreen ?  "w-auto"  : "w-50" }` }
                     >
                         <DialogTitle>Profile</DialogTitle>
                         <DialogContent>
-                            <form className="bg-white m-3  p-4 w-auto rounded-3" onSubmit={handleSubmit(onSubmit)}>
+                            <form className={ `bg-white   p-4 w-auto rounded-3 ${isSmallScreen ?  ""  : "m-3"}` } onSubmit={handleSubmit(onSubmit)}>
                                 <FormGroup >
                                     <FormControl className="gap-1">
                                         <FormLabel htmlFor="name"> Name</FormLabel>
