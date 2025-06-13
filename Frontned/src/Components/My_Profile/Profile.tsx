@@ -154,7 +154,7 @@ export function Profile( { profile, type } : ProfileProps) {
                             gap="20px"
                         >
                             <img
-                                src={ validImage }
+                                src={ validImage ? profile?.avatar :  "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png" }
                                 width={78}
                                 height={78}
                                 style={{  objectFit: "cover", aspectRatio  : "1:1" }}
@@ -236,7 +236,8 @@ export function Profile( { profile, type } : ProfileProps) {
                             </Box>
                         </Box>
                     </Box>
-                    <button className="btn btn-dark btn-sm align-self-start" onClick={()=>setOpen(true)}>{ profile?.address ? "Edit Profile" : "Complete Your Profile" }</button>
+                    {user._id === profile?._id && <button className="btn btn-dark btn-sm align-self-start"
+                              onClick={ () => setOpen ( true ) }>{ profile?.address ? "Edit Profile" : "Complete Your Profile" }</button> }
                 </Box>
             </Box>
 

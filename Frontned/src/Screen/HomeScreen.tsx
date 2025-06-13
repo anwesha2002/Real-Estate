@@ -1,5 +1,5 @@
 import {Sidebar} from "../Components/Sidebar.tsx";
-import {ReactNode , useState} from "react";
+import {ReactNode , useEffect , useState} from "react";
 import "../Style/Homescreen.scss"
 import {
     MdDehaze ,
@@ -13,6 +13,7 @@ import {
 import {Backdrop , Box , IconButton , Stack , useMediaQuery , useTheme} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import zIndex from "@mui/material/styles/zIndex";
+import {SocketContextProvider , useSocket} from "../Context/socketContext.tsx";
 
 export interface resourceProps {
     name :string
@@ -57,6 +58,7 @@ export const resources : resourceProps[] = [
 export function HomeScreen({children} : {children : ReactNode} ){
 
     const navigate = useNavigate()
+    const { setAuthUser } = useSocket()
 
     const userData = localStorage.getItem("tokens")
 
@@ -70,13 +72,18 @@ export function HomeScreen({children} : {children : ReactNode} ){
 
     const issmallScreen = useMediaQuery(theme.breakpoints.down("lg"))
 
+    // useEffect(()=>{
+    //     setAuthUser(localStorage.getItem("tokens"))
+    // },[])
+
+
     function handleOpenMenu(){
         setDrawerOpen(!drawerOpen);
     }
 
     return(
-
-            // <div className="homescreen p-0 m-0 h-100" style={{backgroundColor : "#e0ebeb"}}>
+            <SocketContextProvider>
+            {/*// <div className="homescreen p-0 m-0 h-100" style={{backgroundColor : "#e0ebeb"}}>*/}
                 <Box flexGrow={1} className="me-0 pe-0  "
                 //      style={{
                 //     height : "100vh",
@@ -165,45 +172,11 @@ export function HomeScreen({children} : {children : ReactNode} ){
 
 
 
-                    {/*<Box className="position-relative">*/}
 
-
-                    {/*    <Box className="position-absolute top-50 end-50 bg-danger">*/}
-                    {/*        <Stack gap={2} textAlign="center" direction="column">*/}
-                    {/*            <span>Welcome to the RE</span>*/}
-                    {/*            <span>Please complete your profile first!</span>*/}
-                    {/*            <button className="btn btn-secondary">Go to profile</button>*/}
-                    {/*        </Stack>*/}
-                    {/*    </Box>*/}
-                    {/*</Box>*/}
-
-
-
-                    {/*<Modal*/}
-                    {/*    aria-labelledby="modal-title"*/}
-                    {/*    aria-describedby="modal-desc"*/}
-                    {/*    open={true}*/}
-                    {/*    // onClose={()=>setOpen(false)}*/}
-                    {/*    sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width : "50%" }}*/}
-
-                    {/*>*/}
-                    {/*    <ModalDialog*/}
-                    {/*        layout="center"*/}
-                    {/*        variant="outlined"*/}
-                    {/*        className="bg-secondary-subtle w-50"*/}
-                    {/*    >*/}
-                    {/*        <DialogTitle textAlign="center">Welcome to the RE</DialogTitle>*/}
-                    {/*        <DialogContent>*/}
-                    {/*            <Stack gap={2} textAlign="center" direction="column">*/}
-                    {/*                <span>Please complete your profile first!</span>*/}
-                    {/*                <button className="btn btn-secondary">Go to profile</button>*/}
-                    {/*            </Stack>*/}
-                    {/*        </DialogContent>*/}
-                    {/*    </ModalDialog>*/}
-                    {/*</Modal>*/}
                 </Box>
 
-            // </div>
+                {/*// </div>*/}
+            </SocketContextProvider>
 
     )
 }

@@ -5,6 +5,7 @@ import { Box , Stack , Typography} from "@mui/material";
 import {ElementType } from "react";
 import {MdEmail , MdLocationCity , MdPhone , MdPlace} from "react-icons/md";
 import { useCheckImage} from "../../Util/checkImage.ts";
+import logo from "../../assets/img.png";
 
 interface agentCardProperties extends UserModels{
     index : number,
@@ -49,7 +50,7 @@ export function AgentCard({_id, name, avatar, email, allProperties, index, lengt
                     //         : "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
 
                     // avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
-                    validImage
+                    validImage ? avatar : "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
                 }
                 alt="user"
                 width={90}

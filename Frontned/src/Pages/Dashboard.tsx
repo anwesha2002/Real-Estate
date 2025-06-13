@@ -2,10 +2,12 @@ import {PieChart} from "../Components/Dashboard/Piechart.tsx";
 import {Box , Stack , Typography} from "@mui/material";
 import {TotalRevenue} from "../Components/Dashboard/TotalRevenue.tsx";
 import {PropertyReferrals} from "../Components/Dashboard/PropertyReferrals.tsx";
-import {useEffect , useState} from "react";
+import {useEffect , useMemo , useState} from "react";
 import {PropertyCard} from "../Components/Property/PropertyCard.tsx";
-import {getProperties} from "../Network/Document_api.ts";
+import {api_route , getProperties} from "../Network/Document_api.ts";
 import {PropertyModel} from "../Models/PropertyModel.ts";
+import io from "socket.io-client";
+import {useSocket} from "../Context/socketContext.tsx";
 
 export function Dashboard() {
 
@@ -47,6 +49,11 @@ export function Dashboard() {
                 .then((data)=>setAllProperties(data))
         }) ()
     },[])
+
+    const { notification } = useSocket()
+
+    console.log(notification)
+
 
     return (
         // <HomeScreen>

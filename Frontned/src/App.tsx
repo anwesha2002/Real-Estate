@@ -18,13 +18,22 @@ import {Box , Stack} from "@mui/material";
 import {Login} from "./Pages/Login.tsx";
 import {MessageRoom} from "./Components/Messages/MessageRoom.tsx";
 import {SignIn} from "./Components/Login/SignIn.tsx";
+import {useSocket} from "./Context/socketContext.tsx";
+import {useEffect} from "react";
 
 
 function App() {
 
     const { open   } = useSidebar()
 
-    console.log(open)
+    // const { socketConn } = useSocket()
+    //
+    // console.log(socketConn)
+
+    // useEffect(()=>{
+    //     setAuthUser(localStorage.getItem("tokens"))
+    // },[])
+
 
 
   return (

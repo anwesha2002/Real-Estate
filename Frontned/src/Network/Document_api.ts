@@ -11,7 +11,8 @@ type getPropertiesQuery = {
     start? : number
 }
 
-const api_route = "https://real-estate-ueor.onrender.com"
+// const api_route = "https://real-estate-ueor.onrender.com"
+export const api_route = "http://localhost:5000"
 
 export async function login( credentials : UserModels ) : Promise<UserModels> {
     // const {name, email, avatar} = credentials
@@ -186,9 +187,9 @@ export async function getAgentsById(id : string) : Promise<UserModels> {
 
 export async function sendMessage(id : string, message : ChatModels)  {
 
-    console.log(id)
-    console.log(message)
-    console.log(message)
+    // console.log(id)
+    // console.log(message)
+    // console.log(message)
 
     const response = await fetch(`${api_route}/api/chat/${id}`, {
         method : "POST",
@@ -203,7 +204,7 @@ export async function sendMessage(id : string, message : ChatModels)  {
     const updatedUserData = await response.json();
 
 
-    console.log(updatedUserData)
+    // console.log(updatedUserData)
 
     return updatedUserData;
 
@@ -211,7 +212,7 @@ export async function sendMessage(id : string, message : ChatModels)  {
 
 export async function getChat(id : string)  {
 
-    console.log(id)
+    // console.log(id)
 
     const response = await fetch(`${api_route}/api/chat/${id}`, {
         method : "GET",
@@ -225,7 +226,7 @@ export async function getChat(id : string)  {
     const updatedUserData = await response.json();
 
 
-    console.log(updatedUserData)
+    // console.log(updatedUserData)
 
     return updatedUserData;
 

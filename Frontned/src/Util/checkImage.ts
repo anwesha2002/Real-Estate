@@ -2,13 +2,13 @@ import {useEffect , useState} from "react";
 
 export function useCheckImage(url : string | undefined, fallbackImage : any) {
 
-    const [validImageURL, setValidImageURL] = useState<string>(fallbackImage)
+    const [validImageURL, setValidImageURL] = useState<boolean>(false)
 
     useEffect(()=>{
         if(!url) return
         const image = new Image();
-        image.onload = () => setValidImageURL(url)
-        image.onerror = () => setValidImageURL(fallbackImage)
+        image.onload = () => setValidImageURL(true)
+        image.onerror = () => setValidImageURL(false)
         image.src = url
 
         return () => {

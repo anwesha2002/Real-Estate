@@ -1,5 +1,6 @@
 import {RequestHandler} from "express";
-import charRoomModel from "../Models/chatRoom"
+import charRoomModel , {chatRoomType} from "../Models/chatRoom"
+import messageModel from "../Models/message"
 import chatModel from "../Models/Chats"
 import mongoose , {Types} from "mongoose";
 import UserModel , {userType} from "../Models/users";
@@ -9,16 +10,17 @@ interface messageId {
 }
 
 interface messageBody {
-    to : mongoose.Schema.Types.ObjectId,
-    from : mongoose.Schema.Types.ObjectId,
+    to? : mongoose.Schema.Types.ObjectId,
+    from? : mongoose.Schema.Types.ObjectId,
     message : string,
-    name : string,
-    customer? : string
+    name? : string,
+    customer? : string,
+    propertyImage? : string
 }
 
 const sendMessage : RequestHandler<messageId,unknown,messageBody,unknown> = async (req, res, next) => {
 
-    const { to, from , name, customer} = req.body
+    const { to, from , name, customer, message, propertyImage} = req.body
 
     const {id} = req.params
 
@@ -28,46 +30,57 @@ const sendMessage : RequestHandler<messageId,unknown,messageBody,unknown> = asyn
 
         session.startTransaction()
 
-        console.log(req.body)
-        console.log(id)
+        // console.log(req.body)
+        // console.log(id)
 
-        const existingChat = await charRoomModel.findOne({ chatId : id})
+        const existingChat = await charRoomModel.findOne({ chatId : id}) as chatRoomType
         const user1 = await UserModel.findOne({_id : from}).session(session) as userType
         const user2 = await UserModel.findOne({_id : to}).session(session) as userType
 
-        if(existingChat){
 
-            const updatemessageBody = await charRoomModel.findOneAndUpdate({chatId : id},
-                {
-                    firstUserId : from,
-                    secondUserId : to,
-                    $push : { messages : req.body },
-                    chatId : id,
-                    chatName : name,
-                    customer : customer && customer
-                }
+        const messagedata = await messageModel.create({
+            from : from,
+            to : to,
+            message : message,
+            chatId : id
+        })
 
-            )
+        // if(existingChat){
+        //
+        //     const updatemessageBody = await charRoomModel.findOneAndUpdate({chatId : id},
+        //         {
+        //             firstUserId : from,
+        //             secondUserId : to,
+        //             $push : { messages : req.body },
+        //             chatId : id,
+        //             chatName : name,
+        //             customer : customer && customer
+        //         }
+        //
+        //     )
+        //
+        //     res.status(200).json(updatemessageBody)
+        // }
 
-            res.status(200).json(updatemessageBody)
-        }
-        else {
+        if(!existingChat) {
             const messageBody = await charRoomModel.create({
                 firstUserId : from,
                 secondUserId : to,
-                messages : req.body,
+                messages : [messagedata._id],
+                // messages : req.body,
                 chatId : id,
                 chatName : name,
-                customer : customer
+                customer : customer,
+                propertyImage : propertyImage
             })
 
-            console.log(messageBody)
+            // console.log(messageBody)
 
-            await chatModel.create({
-                firstUserId : from,
-                secondUserId : to,
-                chats : messageBody._id
-            })
+            // await chatModel.create({
+            //     firstUserId : from,
+            //     secondUserId : to,
+            //     chats : messageBody._id
+            // })
 
 
             user1?.allChatIds?.push(messageBody._id as Types.ObjectId)
@@ -78,15 +91,26 @@ const sendMessage : RequestHandler<messageId,unknown,messageBody,unknown> = asyn
 
             await session.commitTransaction()
 
-            res.status(201).json(messageBody)
+            // res.status(201).json(messageBody)
+        }
+        else{
+            existingChat?.messages?.push(messagedata._id as Types.ObjectId)
+
+            await existingChat?.save({session})
+
+            await session.commitTransaction()
         }
 
+        // if(existingChat._id ){
+        //         //     io.to(existingChat._id as any ).emit("newMessage", messagedata);
+        //         // }
+
+        res.status(201).json(messagedata)
 
     }catch (err){
         res.status(500)
 
     }
-
 
 }
 
@@ -96,9 +120,10 @@ const sendMessage : RequestHandler<messageId,unknown,messageBody,unknown> = asyn
 
      try {
 
-        const messages = await charRoomModel.findOne({chatId : id}).populate('secondUserId')
+        const messages = await charRoomModel.findOne({chatId : id}).populate( { path :  'secondUserId firstUserId' , select : 'name avatar id' }).populate('messages')
 
-         console.log(messages)
+         // console.log(messages)
+
          res.status(200).json(messages)
 
 

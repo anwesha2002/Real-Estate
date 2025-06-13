@@ -63,10 +63,11 @@ export function PropertyDetails() {
         if(isCurrentUser) navigate("/property/create", {state : { id : id && id, details : details }})
         else{
             navigate(`/messageRoom/${id}-${details?.creator._id}-${user._id}`,{state : {
-                secondName : details?.creator._id,
+                secondNameId : details?.creator._id,
                 customer : user?.name,
                 name : details?.creator.name,
-                propertyName : details?.title
+                propertyName : details?.title,
+                propertyImage : details?.photo,
             }})
         }
     }
@@ -135,7 +136,7 @@ export function PropertyDetails() {
                 <Box  width="100%" flex={1}  maxWidth={ {lg : 326 , xs : "100%"}} display="flex" flexDirection="column" gap="20px">
                     <Stack p={2} width="100%" direction="column" justifyContent="center" alignItems="center" border="1px solid #E4E4E4" borderRadius={2}>
                         <Stack mt={2} justifyContent="center" alignItems="center" textAlign="center">
-                            <img src={ validImage }  alt="avatar"
+                            <img src={ validImage ? details?.creator?.avatar : logo }  alt="avatar"
                                  width={90}
                                  height={90}
                                  style={{

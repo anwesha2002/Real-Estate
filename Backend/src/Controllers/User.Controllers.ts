@@ -110,7 +110,12 @@ const getUserById : RequestHandler<userIdProps,unknown, unknown, unknown> = asyn
     try {
         const { id } = req.params
 
-        const user = await UserModel.findOne({_id : id}).populate('allProperties').populate('allChatIds')
+        const user = await UserModel.findOne({_id : id}).populate('allProperties').populate( {
+           path : 'allChatIds' , populate : {
+               path : 'secondUserId firstUserId',
+                select : 'name _id avatar',
+            }
+        })
 
         if(!user) throw Error("User not found")
 

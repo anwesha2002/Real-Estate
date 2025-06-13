@@ -1,81 +1,302 @@
-import {Avatar , Box , OutlinedInput , Paper , Stack , Typography} from "@mui/material";
-import {useEffect , useRef , useState} from "react";
-import {MdLocationCity , MdSend} from "react-icons/md";
-import {getChat , sendMessage} from "../../Network/Document_api.ts";
+import {
+    Avatar ,
+    Box ,
+    CircularProgress ,
+    OutlinedInput ,
+    Paper ,
+    Stack ,
+    Typography
+} from "@mui/material";
+import {MutableRefObject , useCallback , useEffect , useMemo , useRef , useState} from "react";
+import {MdAttachFile , MdAttachment , MdFrontLoader , MdLocationCity , MdSend} from "react-icons/md";
+import {api_route , getChat , sendMessage} from "../../Network/Document_api.ts";
 import {useLocation , useNavigate , useParams} from "react-router-dom";
 import {ChatModels} from "../../Models/chatModels.ts";
+import Button from "@mui/material/Button";
+import {useCheckImage} from "../../Util/checkImage.ts";
+import styles from "../../Style/messageRoom.module.css"
+import io from "socket.io-client";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import { useSocket} from "../../Context/socketContext.tsx";
+import _ from "lodash";
 
+interface chatProperties {
+    _id : string,
+    firstUserId : {
+        avatar : string,
+        name : string,
+        _id : string,
+    },
+    secondUserId : {
+        avatar : string,
+        name : string,
+        _id : string,
+    },
+    chatId : string,
+    chatName : string,
+    customer : string,
+    messages : {
+        from : string,
+        to : string,
+        message : string,
+        createdAt : string
+    }[]
+}
 
-// const messages = [
-//     {
-//         to : "abc",
-//         from : "anwesha",
-//         time : Date.now(),
-//         message : "Hello sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg"
-//     },
-//     {
-//         to : "anwesha",
-//         from : "abc",
-//         time : Date.now(),
-//         message : "Hi sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg  sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg  sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg  sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg  sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg  sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg  sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg  sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg sfgigsgsigibsfbsfiubsfugsvbfibfguugbbubrg "
-//     }
-// ]
+interface messageProperties {
+    to : string,
+    from : string ,
+    message : string,
+    createdAt : string
+}
 
 export function MessageRoom() {
 
-    const userData = localStorage.getItem("tokens")
-
-    if(!userData) return
-
-    const currentuser = JSON.parse(userData)
+    const eleRef : MutableRefObject<HTMLDivElement | null> = useRef(null)
     const location = useLocation()
-    const [chats, setMessages] = useState<any>([])
-    const {id } = useParams()
-    const eleRef = useRef<null | HTMLDivElement>(null)
     const navigate = useNavigate()
+    let  selectedChatCompare;
 
-    console.log(location.state)
+    const {id } = useParams()
 
-    useEffect ( () => {
+    const userData = localStorage.getItem("tokens")
+    if(!userData) return
+    const currentuser = JSON.parse(userData)
+
+    const existingNotif  = JSON.parse(localStorage.getItem("notification"))
+
+
+    const [chats, setChats] = useState<chatProperties>()
+    const [allMessages, setMessages] = useState<messageProperties[]>([])
+    const [sendingMessage, setSendingMessage] = useState<boolean>(false)
+    const [socketConnected, setSocketConnected] = useState<any, any>()
+    const [typing, setTyping] = useState(false)
+    const [isTyping, setIsTyping] = useState(false)
+    // const [socket, setSocket] = useState<any>()
+    // const [onlineUser,setOnlineUsers] = useState()
+
+    const [messagebody, setInputfield] = useState<ChatModels>({
+        to : location?.state?.secondNameId ? location?.state?.secondNameId : location?.state?.chatDetails?.secondUserId?._id != currentuser._id ? location?.state?.chatDetails?.secondUserId?._id : location?.state?.chatDetails?.firstUserId?._id ,
+        from : currentuser._id,
+        message : "",
+        name :  `${location?.state?.propertyName} - ${location?.state?.name} `,
+        customer :  location?.state?.customer,
+        propertyImage : location?.state?.propertyImage
+    })
+
+    const {  notification, setNotification,  socketConn : socket, setSelected, selected } = useSocket()
+
+
+
+
+    // const socket  = useMemo(()=>{
+    //     return  io(api_route,{
+    //         transports: ['websocket','polling'],
+    //         // path : '/api/chat',
+    //         // reconnectionAttempts: 5
+    //         // hostname: 'localhost',
+    //         // secure: false,
+    //         // port: '5000'
+    //     })
+    // },[id])
+
+    // selectedChatCompare = useMemo(()=>{
+    //     return id
+    // },[id])
+
+
+    const resetNotif = () => {
+        notification.filter(notif=>notif.chatId != id)
+    }
+
+
+
+    useEffect(()=>{
+
+        if(!socket) return
+
+        socket.emit("setup",currentuser)
+        socket.on("connected",(userData)=> {
+            setSocketConnected ( true )
+        })
+
+        socket.on("typing",(user)=> {
+            user === currentuser._id && setIsTyping ( true )
+        })
+        socket.on("stop typing",()=> {
+            setIsTyping ( false )
+        })
+
+        socket.on("connect_error", (err) => {
+            console.log(`connect_error due to ${err}`);
+        });
 
         (async ()=>{
             await getChat(id as string)
                 .then((res)=> {
-                    setMessages ( res )
+                    setChats ( res)
+                    setMessages( [...res?.messages])
+                    socket?.emit("join chat", res)
+                })
+                .then(()=>{
+                    socket?.on("userJoined",(chatData)=>{
+                        console.log("userJoined : ", chatData)
+                        id && setSelected(id)
+
+                        // setNotification(newNotif)
+                        // console.log(notification)
+                        // console.log(newNotif)
+                    })
                 })
         })()
-    } , [] );
 
-    const [messagebody, setInputfield] = useState<ChatModels>({
-        to : location?.state?.secondName,
-        from : currentuser._id,
-        message : "",
-        name : location.state ? `${location?.state?.propertyName} - ${location?.state?.name} ` : chats?.chatName,
-        customer : location?.state?.customer
-    })
+        // selectedChatCompare = id
+        id && setSelected(id)
 
-    useEffect(()=>{
-        (eleRef?.current as HTMLDivElement)?.scrollIntoView()
+        localStorage.setItem("notification",JSON.stringify(existingNotif.filter(notif=>notif.chatId != id)))
+        resetNotif()
+
     },[])
 
-    console.log(eleRef)
+    // useCallback(()=>{
+    //     setSelected(id)
+    // },[id])
+
+
+    // console.log(socketConnected)
+
+
+    // useEffect ( () => {
+    //
+    //
+    //
+    //     selectedChatCompare = id
+    //     id && setSelected(id)
+    //
+    // } , [] );
+
 
     async function handleClick(event : any){
+        try {
 
-        if(!id) return
+            if(!id) return
+            setSendingMessage(true)
+            event.preventDefault()
+            setInputfield( {to : messagebody.to, from : currentuser._id, message : messagebody.message })
 
-        event.preventDefault()
-        setInputfield( {to : location?.state?.secondName, from : currentuser._id, message : messagebody.message , name : chats?.name})
-        await sendMessage(  id ,  messagebody )
-            .then(()=>{
-                // setChatID(res._id)
-                setInputfield((prevState)=>({...prevState,message : ""}))
-            })
-        console.log(messagebody)
+            await sendMessage(  id ,  messagebody )
+                .then((result)=>{
+                    // console.log(result)
+                    // console.log(socket)
+                    socket?.emit("newMessage", result);
+                    // setMessages((prevState)=>([ ...prevState , result ]))
+                    setMessages([ ...allMessages , result ])
+                })
+                .then(()=>{
+                    // setChatID(res._id)
+                    setInputfield((prevState)=>({...prevState,message : ""}))
+                    eleRef.current = null
+                }).then(()=>setSendingMessage(false))
+            // console.log(messagebody)
+
+        }catch (e) {
+            console.log(e)
+        }
+    }
+
+    useEffect(()=>{
+
+        eleRef.current?.scrollIntoView();
+
+        // console.log(selectedChatCompare)
+
+        // setSelected(selectedChatCompare)
+
+
+        socket?.on("message received", (newMessageRecieved) => {
+
+            // console.log(selectedChatCompare)
+            // console.log(newMessageRecieved.chatId)
+
+            // id && setSelected(id)
+
+            // if (
+            //     !selectedChatCompare || // if chat is not selected or doesn't match current chat
+            //     selectedChatCompare !== newMessageRecieved.chatId
+            // ) setSelected(false)
+            // else setSelected(true)
+
+
+
+            // if (
+            //     !selected || // if chat is not selected or doesn't match current chat
+            //     selected !== newMessageRecieved.chatId
+            // ) {
+            //     // if (!notification.includes(newMessageRecieved)) {
+            //     //     setNotification([newMessageRecieved, ...notification]);
+            //     //
+            //     //     // setFetchAgain(!fetchAgain);
+            //     // }
+            //
+            //     if(notification) setNotification([newMessageRecieved, ...notification]);
+            //     else setNotification(newMessageRecieved)
+            // } else {
+                setMessages([...allMessages, newMessageRecieved]);
+            // }
+        });
+
+    })
+
+    // console.log(notification)
+
+    function handleTyping(event ){
+
+        setInputfield ( (prevState) => ({ ...prevState , message : event.target.value }) )
+
+        if(!socketConnected) return
+
+        if(!typing ){
+            setTyping(true)
+            socket.emit('typing', { chatId : id, id : messagebody.to })
+        }
+
+        const lastTyping = new Date().getTime()
+        const timerLength = 3000
+
+        setTimeout(()=>{
+            const timeNow = new Date().getTime()
+            const timeDiffrence = timeNow - lastTyping
+            if(timeDiffrence > timerLength) {
+                socket.emit('stop typing',{ chatId : id, id : messagebody.to })
+                setTyping(false)
+            }
+        },timerLength)
 
     }
 
-    console.log(id)
+    // console.log(isTyping)
+    // console.log(typing)
+
+    function handleImageChange(file : FileList | null){
+
+        if(!file) return
+        const reader = (readFile) => new Promise<string>((resolve)=>{
+            const fileReader = new FileReader()
+
+            fileReader.onload =() => resolve(fileReader.result as string)
+            fileReader.readAsDataURL(readFile)
+        })
+
+        reader(file[0])
+            .then((result : string)=>{
+                setInputfield({to : messagebody.to, from : currentuser._id, message : result })
+            })
+            .then(()=> {
+                eleRef.current ? eleRef.current.value = file[0].name : ""
+            })
+            .catch((error)=>alert(error))
+
+    }
 
 
 
@@ -84,7 +305,8 @@ export function MessageRoom() {
             <Box className="p-2" >
                 <Stack direction="row" display="flex" gap={1} mb={1} alignItems="center">
                     <Typography className=" fs-4 p-1 text-capitalize">
-                        {chats?.secondUserId?.name || location?.state?.name}
+                        {/*{chats?.secondUserId?.name || location?.state?.name}*/}
+                        {chats?.chatName}
                         {/*SecondPerson*/}
                     </Typography>
                     <button
@@ -94,17 +316,35 @@ export function MessageRoom() {
                         }}
                         className="btn btn-outline-secondary rounded rounded-pill"><MdLocationCity size={30} className=" rounded rounded-circle "/></button>
                 </Stack>
-                <Box className="rounded-4 p-3 " flexGrow={1}  sx={{bgcolor : "#fff", height : "90vh", overflowY: "auto", display: "flex", flexDirection: "column", justifyContent : "space-between"}}>
+                <Box className="rounded-4 p-3 " flexGrow={1}  sx={{bgcolor : "#fff", height : "90vh", overflowY: "scroll", scrollbarColor : "primary", scrollbarWidth : 10 , display: "flex", flexDirection: "column", justifyContent : "space-between"}}>
                     <Box   sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
-                        {chats?.messages?.map((chat : ChatModels, index : number) => (
+                        {allMessages?.map((chat : ChatModels, index : number) => (
                             <ChatBubble
                                 key={index}
-                                message={chat.message}
+                                message={chat?.message}
                                 isSentByCurrentUser={currentuser._id === chat?.from}
+                                avatar={chat?.from === chats?.firstUserId?._id ? chats?.firstUserId?.avatar : chats?.secondUserId?.avatar}
                             />
                         ))}
+                        {
+                            isTyping &&
+                            <DotLottieReact
+                                src="https://lottie.host/3479a7ec-bc6e-4837-bab7-37d9fa276ed4/x1EEs1GQBu.lottie"
+                                loop
+                                autoplay
+                                style={{height : "100px", width : "100px"}}
+                            />
+                            // <div>typing</div>
+                        }
                     </Box>
-                    <form onSubmit={handleClick} className="d-flex border border-1 rounded-3 flex-row align-items-center flex-nowrap position-relative">
+                    <form onSubmit={handleClick} className="d-flex border border-1 bottom-0 justify-content-end rounded-3 flex-row align-items-center flex-nowrap position-relative">
+                        <Button component="label" className="btn  start-0 " >
+                            <MdAttachFile size={22}/>
+                            <input
+                                   onChange={(e)=>handleImageChange(e.target?.files)}
+                                   hidden accept="image/*" type="file" />
+                        </Button>
+
                         <OutlinedInput sx={{
                             flexGrow: 1,
                             '& .MuiOutlinedInput-notchedOutline': {
@@ -125,17 +365,31 @@ export function MessageRoom() {
                                 // Optional: If you want to remove focus style while typing (no blue background)
                                 outline : 'none' ,
                             }
-                        }}  onChange={(event)=>(setInputfield((prevState)=> ({...prevState, message : event.target.value })))}  value={messagebody.message}  className="d-flex flex-grow-1 focus:outline-none mui-f" />
-                        <button  type="submit" className="btn btn-secondary position-absolute end-0 me-2"><MdSend  size={26}/></button>
+                        }}  onChange={
+                            (event)=> {
+                            // setInputfield ( (prevState) => ({ ...prevState , message : event.target.value }) )
+                                handleTyping(event)
+                            }
+                        } ref={eleRef} value={eleRef?.current?.value ? eleRef.current.value : messagebody.message}  className="d-flex flex-grow-1 focus:outline-none mui-f" />
+                        {sendingMessage ?
+                            <CircularProgress size={20} color="inherit" className="me-2"/> :
+                            <button  type="submit" className="btn btn-secondary position-absolute end-0 me-2"><MdSend  size={26}/></button>
+                        }
+                        {/*<ScrollToBottom/>*/}
                     </form>
-                    <div ref={eleRef}></div>
                 </Box>
             </Box>
         </Box>
     );
 }
 
-function ChatBubble({ message, isSentByCurrentUser } : {message : string , isSentByCurrentUser : boolean}) {
+function ChatBubble({ message, isSentByCurrentUser, avatar } : {message : string | undefined, isSentByCurrentUser : boolean, avatar : string | undefined}) {
+
+    const validImage = useCheckImage(message , "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png")
+
+    const [enlarge, setEnlarge] = useState<boolean>(false)
+
+
     return (
         <Box
             sx={{
@@ -147,14 +401,26 @@ function ChatBubble({ message, isSentByCurrentUser } : {message : string , isSen
         >
             <Box  maxWidth="70%"  >
                 <Stack direction={isSentByCurrentUser ? "row-reverse" : "row"} gap={2} alignItems="flex-end ">
-                    <Avatar src="Frontned/src/assets/img.png"/>
+                    <Avatar src={ avatar }/>
 
-                    <Paper elevation={3} style={{ padding: '10px', borderRadius: '10px', backgroundColor: isSentByCurrentUser ? '#DCF8C6' : '#FFFFFF', wordBreak : "break-word" }}>
+                    <Paper elevation={3} style={{ padding: '10px', borderRadius: '10px', backgroundColor: isSentByCurrentUser ? '#DCF8C6' : '#FFFFFF', wordBreak : "break-word", overflowX : "hidden" }} className={`${enlarge ? styles.enlargeImage : styles.normalSize} `}>
 
-
+                        {
+                            validImage ? <img
+                                src={ message }
+                                // width={78}
+                                // height={78}
+                                style={{
+                                    objectFit: "cover", aspectRatio  : "1:1"
+                                }}
+                                alt="picture"
+                                className={ `h-100 w-100 rounded-full `}
+                                onClick={()=>setEnlarge(!enlarge)}
+                            /> :
                             <Typography variant="body2" style={{ color: isSentByCurrentUser ? 'black' : 'black' }}>
                                 {message}
                             </Typography>
+                        }
 
                     </Paper>
                 </Stack>
