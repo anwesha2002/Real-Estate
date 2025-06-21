@@ -8,7 +8,8 @@ type getPropertiesQuery = {
     title? : string,
     type? : string,
     pageSize? : number,
-    start? : number
+    start? : number,
+    sort_parameter : string
 }
 
 // const api_route = "https://real-estate-ueor.onrender.com"
@@ -66,28 +67,30 @@ export async function createProperty( propertyDetails : PropertyModel ) : Promis
     // console.log(response.json())
     const data = await response.json()
 
-    // if(response.status === 200 || response.status === 201 ){
-    //     localStorage.setItem(
-    //         "property",
-    //         JSON.stringify({
-    //             // ...credentials,
-    //             // avatar : avatar,
-    //             ...propertyDetails,
-    //             propertyId : data._id
-    //         })
-    //     )
-    // }else {
-    //     // return Promise.reject()
-    //     const errorMessage = data.error;
-    //     throw Error("request fail with" + errorMessage)
-    // }
-    // }
-    return data
+    if(response.status === 200 || response.status === 201 ){
+
+        let user = localStorage.getItem("user") && JSON.parse(localStorage.getItem("user"))
+
+        user = await getAgentsById(user?.userId )
+
+        localStorage.setItem(
+            "tokens",
+            JSON.stringify(user)
+        )
+
+        return data
+    }else {
+        // return Promise.reject()
+        const errorBody = await response.json();
+        const errorMessage = errorBody.error;
+        throw Error("request fail with" + errorMessage)
+    }
+
 
 }
 
-export async function getProperties({order, title, type, pageSize, start} : getPropertiesQuery) : Promise<PropertyModel[]>{
-    const response = await fetch(`${api_route}/api/properties?_end=${pageSize}&_sort=price&_order=${order}&_title_like=${title}&propertyType=${ type === "all" ? "" : type}&_start=${start}`,{
+export async function getProperties({sort_parameter , order, title, type, pageSize, start} : getPropertiesQuery) : Promise<PropertyModel[]>{
+    const response = await fetch(`${api_route}/api/properties?_end=${pageSize}&_sort=${sort_parameter}&_order=${order}&_title_like=${title}&propertyType=${ type === "all" ? "" : type}&_start=${start}`,{
         method : "GET",
         headers : { 'Content-Type' : 'application/json' },
     })

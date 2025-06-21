@@ -4,7 +4,6 @@ import {Container} from "react-bootstrap";
 import {HomeScreen} from "./Screen/HomeScreen.tsx";
 import {Route , Routes} from "react-router";
 import {Dashboard} from "./Pages/Dashboard.tsx";
-import {useSidebar} from "./Context/SidebarContext.tsx";
 import {Properties} from "./Pages/Properties.tsx";
 import {Agents} from "./Pages/Agents.tsx";
 import {Reviews} from "./Pages/Reviews.tsx";
@@ -18,13 +17,10 @@ import {Box , Stack} from "@mui/material";
 import {Login} from "./Pages/Login.tsx";
 import {MessageRoom} from "./Components/Messages/MessageRoom.tsx";
 import {SignIn} from "./Components/Login/SignIn.tsx";
-import {useSocket} from "./Context/socketContext.tsx";
-import {useEffect} from "react";
 
 
 function App() {
 
-    const { open   } = useSidebar()
 
     // const { socketConn } = useSocket()
     //

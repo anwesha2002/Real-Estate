@@ -1,7 +1,7 @@
 import {Box , Rating , Stack , Typography} from "@mui/material";
 import {useNavigate , useParams} from "react-router-dom";
-import {useEffect , useState} from "react";
-import {DeleteProperty , getPropertyDetails} from "../../Network/Document_api.ts";
+import { useEffect , useState} from "react";
+import {DeleteProperty , getPropertyDetails , UpdateProperty} from "../../Network/Document_api.ts";
 import {PropertyModel} from "../../Models/PropertyModel.ts";
 import {MdChatBubble , MdDelete , MdEdit , MdPhone , MdPlace} from "react-icons/md";
 import logo from "../../assets/img.png"
@@ -12,13 +12,15 @@ import {useCheckImage} from "../../Util/checkImage.ts";
 
 interface detailsType extends PropertyModel{
     creator : UserModels
+
 }
 
 export function PropertyDetails() {
 
     const id = useParams().id
     const [ details, setDetails] = useState<detailsType>()
-    const [value, setValue] = useState<number | null>(2)
+    const [value, setValue] = useState<number | null >( null )
+    const [isRating, setIsRating] = useState<boolean>( false )
     const navigate = useNavigate()
 
     const userData = localStorage.getItem("tokens")
@@ -27,9 +29,13 @@ export function PropertyDetails() {
 
     useEffect ( () => {
         (async () => {
-            if(id) await getPropertyDetails(id).then((res)=>setDetails(res))
+            if(id) await getPropertyDetails(id).then((res)=> {
+                setDetails ( res )
+                setValue(res.avgRating ? res.avgRating :res.rating)
+            })
         })()
     } , [] );
+
 
     const user = JSON.parse(userData)
 
@@ -80,6 +86,26 @@ export function PropertyDetails() {
     }
 
 
+    const updateRating = async (value : number | null) => {
+        console.log(value)
+        setIsRating(true)
+
+        if(!value) return
+
+        await UpdateProperty({id : id && id },{ ...details , rating : value })
+            .then((res)=>{
+                setValue(res.avgRating);
+                setIsRating(false)
+            })
+            .catch((err)=>{
+                console.log(err)
+            })
+
+    }
+
+    console.log(details)
+
+
     return (
         <Box borderRadius="15px"
              padding="20px"
@@ -97,9 +123,11 @@ export function PropertyDetails() {
                     <Box mt="15px">
                         <Stack direction="row" justifyContent="space-between" flexWrap="wrap" alignItems="center">
                             <Typography fontSize={18} fontWeight={500} color="#11142D" textTransform="capitalize">{details?.propertyType}</Typography>
-                            <Rating  value={value} onChange={(event, newValue) => {
+                            <Rating disabled={isRating} value={value} precision={0.5} onChange={(event, newValue) => {
                                 event.preventDefault()
-                                setValue(newValue);
+                                updateRating(newValue).then(()=> {
+                                    newValue = null
+                                })
                             }}/>
                         </Stack>
                         <Stack direction="row" justifyContent="space-between" flexWrap="wrap"  alignItems="center">

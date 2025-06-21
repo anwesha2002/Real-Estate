@@ -1,5 +1,5 @@
 import {Sidebar} from "../Components/Sidebar.tsx";
-import {ReactNode , useEffect , useState} from "react";
+import {ReactNode  , useState} from "react";
 import "../Style/Homescreen.scss"
 import {
     MdDehaze ,
@@ -13,7 +13,7 @@ import {
 import {Backdrop , Box , IconButton , Stack , useMediaQuery , useTheme} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import zIndex from "@mui/material/styles/zIndex";
-import {SocketContextProvider , useSocket} from "../Context/socketContext.tsx";
+import {SocketContextProvider } from "../Context/socketContext.tsx";
 
 export interface resourceProps {
     name :string
@@ -58,7 +58,6 @@ export const resources : resourceProps[] = [
 export function HomeScreen({children} : {children : ReactNode} ){
 
     const navigate = useNavigate()
-    const { setAuthUser } = useSocket()
 
     const userData = localStorage.getItem("tokens")
 

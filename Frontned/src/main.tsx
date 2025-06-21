@@ -7,7 +7,6 @@ import "bootstrap/dist/css/bootstrap.css"
 import "./base.scss"
 import {BrowserRouter} from "react-router-dom";
 import {SideBarProvider} from "./Context/SidebarContext.tsx";
-import {SocketContextProvider} from "./Context/socketContext.tsx";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 

@@ -6,6 +6,7 @@ import PropertyModel , {PropertyType} from "../Models/Property"
 import UserModel , {userType} from "../Models/users"
 import mongoose , {Schema , SortOrder} from "mongoose";
 import { RequestHandler} from "express";
+import {couch} from "globals";
 
 cloudinary.config({
     cloud_name: env.CLOUDINARY_CLOUD_NAME,
@@ -22,6 +23,7 @@ interface CreatePropertyBody {
     photo : string,
     fileName : string
     email :  string,
+    rating? : number,
 }
 
 
@@ -57,6 +59,7 @@ const getAllProperties : RequestHandler<unknown, unknown, unknown, queryType> = 
         const count = PropertyModel.countDocuments({query})
         const allProperties = await PropertyModel
             .find(query)
+            .populate('creator')
             .limit(_end)
             .skip(_start)
             .sort( { [_sort] : _order })
@@ -124,7 +127,6 @@ const createProperty : RequestHandler<unknown, unknown, CreatePropertyBody, unkn
 
         await session.commitTransaction()
 
-        localStorage.setItem("tokens",JSON.stringify(user))
 
         res.status(201).send(newProperty)
 
@@ -137,23 +139,64 @@ const updateProperty : RequestHandler<detailsPramsProps, unknown, CreateProperty
     try {
         const {id }= req.params
 
-        const { title, location, description, propertyType, price , photo, fileName } = req.body
+        const { title, location, description, propertyType, price , photo, fileName,  rating  } = req.body
+
+        // console.log(req.body)
 
 
         const photoURL = await cloudinary.uploader.upload(photo)
 
-        console.log(req.body)
-        console.log(id)
+        const existingProperty = await PropertyModel.findById({_id : id}) as PropertyType
 
-        const newProperty = await PropertyModel.findByIdAndUpdate({ _id : id },{
-            title :  title,
-            description :  description,
-            propertyType :  propertyType,
-            location :  location,
-            price :  price,
-            photo :  photoURL.url || photo,
-            fileName : fileName,
-        })
+
+        const sum = rating && (
+            (existingProperty.rating5 ? existingProperty.rating5 *5 : 0)
+            + (existingProperty.rating4 ? existingProperty.rating4 *4 : 0) +
+            (existingProperty.rating3 ? existingProperty.rating3 *3 : 0) +
+            (existingProperty.rating2 ? existingProperty.rating2 *2 : 0) +
+            (existingProperty.rating1 ? existingProperty.rating1 : 0)
+            + rating )
+
+
+
+        const c = rating && (existingProperty?.count ? existingProperty?.count+ 1  : 1)
+
+        const avgrating = sum && c && sum/c
+
+
+        const ratingUpdate : any = {};
+        if(rating){
+            if (rating === 5) ratingUpdate.rating5 = 1;
+            else if (rating === 4) ratingUpdate.rating4 = 1;
+            else if (rating === 3) ratingUpdate.rating3 = 1;
+            else if (rating === 2) ratingUpdate.rating2 = 1;
+            else if (rating === 1) ratingUpdate.rating1 = 1;
+        }
+
+
+        const basicUpdate = {
+
+                title : title ,
+                description : description ,
+                propertyType : propertyType ,
+                location : location ,
+                price : price ,
+                photo : photoURL.url || photo ,
+                fileName : fileName ,
+                count : c ,
+                avgRating : avgrating ,
+                rating : rating
+
+        }
+
+        const newProperty = await PropertyModel.findByIdAndUpdate({ _id : id },
+            {
+                $set: basicUpdate,
+                $inc : ratingUpdate
+            },
+            {new  : true })
+
+        console.log(newProperty)
 
 
         res.status(200).json(newProperty)

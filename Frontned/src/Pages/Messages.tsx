@@ -1,9 +1,8 @@
-import {ElementType , useEffect , useMemo , useState} from "react";
-import {api_route , getAgentsById} from "../Network/Document_api.ts";
+import { useCallback , useEffect , useMemo , useState} from "react";
+import { getAgentsById} from "../Network/Document_api.ts";
 import {Badge , Box , Stack , Typography} from "@mui/material";
 import { MdLocationCity } from "react-icons/md";
-import {Link , useNavigate} from "react-router-dom";
-import io from "socket.io-client";
+import { useNavigate} from "react-router-dom";
 import { useSocket} from "../Context/socketContext.tsx";
 import _ from "lodash"
 
@@ -12,12 +11,13 @@ interface chatIds {
     chatId : string,
     chatName? : string
     firstUserId? : string,
-    messages : {
-        from : string,
-        to : string,
-        message : string
-    }[],
+    // messages : {
+    //     from : string,
+    //     to : string,
+    //     message : string
+    // }[],
     secondUserId? : string
+    unReadCount : number
 }
 
 export function Messages() {
@@ -30,6 +30,8 @@ export function Messages() {
     const [allChats, setAllChats] = useState<any[]>([])
     const navigate = useNavigate()
     const {socketConn,notification, setNotification} =  useSocket()
+
+    useCallback(()=>{setNotification(notification)},[notification])
 
     // const socket  = useMemo(()=>{
     //     return io(`${api_route}`,{
@@ -92,14 +94,10 @@ export function Messages() {
     //     setNotification(existingNotif || [])
     // },[setNotification])
 
-    const notifGroup =  _.groupBy(notification,'chatId')
-
-
 
     // Object.entries(existingNotif)
 
     // console.log(existingNotif)
-
 
 
     // console.log(notifGroup)
@@ -120,14 +118,26 @@ export function Messages() {
     // },[notification,socketConn])
 
 
+    // async function isUserInRoom(currentUser?._id, room) {
+    //     const sockets = await io.in(room).fetchSockets();
+    //     return sockets.some(socket => socket.id === userId); // Check if any socket matches the userId
+    // }
+
+
+    // useEffect ( () => {
+    //     socket.leave("myRoom");
+    // } , [] );
+
 
     useEffect ( () => {
         (async ()=>{
             console.log(currentUser?._id)
             await getAgentsById(currentUser?._id)
                 .then((res)=>{
-                    // console.log(res)
-
+                    console.log(res)
+                    socketConn?.emit("leave room", notification?.chatId)
+                    setNotification(null)
+                    // setNotification(notifGroup)
                     return res.allChatIds as chatIds[]
                 })
                 .then((data)=>{
@@ -136,9 +146,14 @@ export function Messages() {
         })()
     } , [] );
 
-    // console.log(notifGroup)
+    socketConn?.on("userLeft",(id : string)=> {
+        console.log ( "userLeft : " , id )
+    })
 
-
+    const notifGroup = useMemo(()=>{return  _.groupBy(allChats,'chatId')},[])
+    //
+    console.log(notifGroup)
+    // console.log(allChats)
 
 
     return (
@@ -160,7 +175,7 @@ export function Messages() {
 
             >
 
-                {allChats.length == 0 ?
+                {allChats?.length == 0 ?
                     <Typography fontSize={30} fontWeight={100}>
                         No messages to show
                     </Typography>
@@ -192,24 +207,31 @@ export function Messages() {
                             gap={{ xs: 4, sm: 2 }}
                         >
                             <Stack gap={2} direction="row" flexWrap="wrap" alignItems="center">
-                                <Badge color="primary" badgeContent={ `${notifGroup[chat.chatId] ? notifGroup[chat.chatId].length :  0 }` } anchorOrigin={{
+
+                                <Badge color="primary" badgeContent={notification ?  notification?.unReadCount : chat?.lastMessage?.from === currentUser?._id ? 0 : chat?.unReadCount  } anchorOrigin={{
                                     vertical: 'bottom',
 
                                 }}>
+
+                                {/*<Badge color="primary" badgeContent={notification ? notification?.lastMessage?.from === currentUser?._id ? 0 : notification?.unReadCount : chat?.lastMessage?.from === currentUser?._id ? 0 : chat?.unReadCount  } anchorOrigin={{*/}
+                                {/*    vertical: 'bottom',*/}
+
+                                {/*}}>*/}
                                     { chat.propertyImage ? <img width={70} height={70} className="rounded-3" src={chat.propertyImage}/> : <Box height={70} width={70} border={1} className="rounded-3" display="flex" justifyContent="center" alignItems="center"><MdLocationCity size={50} color="green"/></Box> }
                                 </Badge>
 
-                                {
-                                    currentUser._id === chat.secondUserId ?
-                                        <Typography fontSize={22} display="flex" alignSelf="start" color="#11142d" className="text-capitalize">{ chat?.customer }</Typography> :
+                                {/*{*/}
+                                {/*    currentUser._id === chat.secondUserId ?*/}
+                                {/*        <Typography fontSize={22} display="flex" alignSelf="start" color="#11142d" className="text-capitalize">{ chat?.customer }</Typography> :*/}
                                         <Stack display="flex" alignSelf="start">
                                             <Typography fontSize={22} fontWeight={500}  color="#11142d" className="text-capitalize">
-                                                { (chat.chatName).split ( "-" )[0] }
+                                                { currentUser?._id === chat.firstUserId._id ? (chat.chatName)?.split ( "-" )[0] + "-" + chat.secondUserId.name : chat.chatName }
+                                                {/*{ (chat.chatName)?.split ( "-" )[0] }*/}
                                             </Typography>
-                                            <span className="text-capitalize text-body-tertiary fs-6">{ (chat.chatName).split ( "-" )[1] }</span>
+                                            <span className="text-capitalize text-body-tertiary fs-6">{ currentUser?._id === chat.secondUserId._id ? chat?.firstUserId?.name : chat?.secondUserId?.name }</span>
                                             <span style={{fontSize:"12px"}} className="text-capitalize text-primary ">online</span>
                                         </Stack>
-                                }
+                                {/*}*/}
                                 {/*<Typography fontSize={22}  color="#11142d" className="text-capitalize">*/}
                                 {/*    */}
                                 {/*    */}

@@ -10,6 +10,14 @@ export interface PropertyType  {
     photo :  String,
     fileName :  String,
     creator :  userType,
+    rating : number,
+    count : number,
+    avgRating : number,
+    rating5 : number,
+    rating4 : number,
+    rating3 : number,
+    rating2 : number,
+    rating1 : number,
 }
 
 
@@ -22,6 +30,14 @@ const PropertySchema = new Schema<PropertyType>({
     photo : {type : String, required : true},
     fileName : {type : String, required : true},
     creator : {type : Schema.Types.ObjectId, required : true, ref : 'user'},
+    rating : {type : Number },
+    count : {type : Number },
+    avgRating : {type : Number },
+    rating5 : {type : Number },
+    rating4 : {type : Number },
+    rating3 : {type : Number },
+    rating2 : {type : Number },
+    rating1 : {type : Number },
 })
 
 

@@ -2,25 +2,24 @@ import {
     createContext ,
     Dispatch ,
     ReactNode ,
-    SetStateAction , useCallback ,
+    SetStateAction  ,
     useContext ,
     useEffect ,
-    useMemo ,
     useState
 } from "react";
 import io , {Socket} from "socket.io-client";
-import {api_route} from "../Network/Document_api.ts";
-import _ from "lodash";
+import {api_route } from "../Network/Document_api.ts";
+import {ChatRoommodels} from "../Models/chatModels.ts";
 
 interface socketContextProps {
     setUserConnected : Dispatch<SetStateAction<boolean>>
     userConnected : boolean
     setUsers : Dispatch<SetStateAction<any[]>>
     users : any[]
-    setSocketConn : Dispatch<SetStateAction<any>>
-    socketConn : null
-    setNotification : Dispatch<SetStateAction<any[]>>
-    notification : any[]
+    setSocketConn : Dispatch<SetStateAction<Socket | any | null >>
+    socketConn : Socket | null
+    setNotification : Dispatch<SetStateAction<ChatRoommodels | null>>
+    notification : ChatRoommodels | null
     setAuthUser : Dispatch<SetStateAction<any>>
     authUser : any
     setSelected : Dispatch<SetStateAction<string>>
@@ -42,8 +41,8 @@ export function SocketContextProvider({children} : {children : ReactNode}){
 
     const [ userConnected , setUserConnected ] = useState<boolean>(false)
     const [ users , setUsers ] = useState<any[]>([])
-    const [ socketConn , setSocketConn ] = useState<any>(null)
-    const [ notification , setNotification ] = useState<any[]>([])
+    const [ socketConn , setSocketConn ] = useState<Socket | any | null>(null)
+    const [ notification , setNotification ] = useState<ChatRoommodels | null>(null)
     const [authUser, setAuthUser] = useState<any | null>(null)
     const [selected, setSelected] = useState<string>("")
 
@@ -52,7 +51,6 @@ export function SocketContextProvider({children} : {children : ReactNode}){
     if(!userData) return
     const currentUser = JSON.parse(userData)
 
-    // const existingNotif  = useCallback(()=>{return  JSON.parse(localStorage.getItem("notification"))},[notification])
 
     useEffect(()=>{
         if(!socketConn){
@@ -64,7 +62,12 @@ export function SocketContextProvider({children} : {children : ReactNode}){
             })
             setSocketConn(socket)
         }
-    },[])
+
+        socketConn?.emit("setup",currentUser)
+
+    },[currentUser])
+
+    // useCallback(()=>{setNotification(newMessage)},[newMessage])
 
 
 
@@ -72,58 +75,46 @@ export function SocketContextProvider({children} : {children : ReactNode}){
 
         if(!socketConn) return
 
+        //
 
-        socketConn.emit("setup",currentUser)
 
 
         // setNotification(existingNotif)
-
-        console.log ( selected )
+        //
+        // console.log ( selected )
         console.log ( notification )
         // console.log ( existingNotif )
 
 
-        socketConn.on("message received",(newMessage)=> {
+        socketConn.on("updated convo",(newMessage : ChatRoommodels)=> {
 
-            console.log ( selected )
-            console.log ( notification )
+            // console.log ( selected )
+            // console.log ( notification )
             // console.log ( existingNotif )
-            console.log ( newMessage.chatId )
+            // console.log ( newMessage.chatId )
             console.log ( newMessage )
-
-            console.log(selected.trim() == " " || selected != newMessage.chatId)
-
-            console.log("message received" )
-
-            if (!selected || selected != newMessage.chatId) {
-
-                console.log("notification received" )
-
-                notification ? setNotification ( [newMessage , ...notification] ) : setNotification ( [newMessage] )
-                notification ? localStorage.setItem ( "notification" , JSON.stringify ( [newMessage , ...notification] ) ) : localStorage.setItem ( "notification" , JSON.stringify ( [newMessage ] ) )
-                // existingNotif && localStorage.setItem ( "notification" , JSON.stringify ( [newMessage , ...existingNotif] ) )
-            }
+            setNotification(newMessage)
 
 
+            // console.log(selected.trim() == " " || selected != newMessage.chatId)
 
-        },[selected])
+            // console.log("message received" )
+
+            // if (!selected || selected != newMessage.chatId) {
+            //
+            //     console.log("notification received" )
+            //
+            //     notification ? setNotification ( [newMessage , ...notification] ) : setNotification ( [newMessage] )
+            //     notification ? localStorage.setItem ( "notification" , JSON.stringify ( [newMessage , ...notification] ) ) : localStorage.setItem ( "notification" , JSON.stringify ( [newMessage ] ) )
+            //     // existingNotif && localStorage.setItem ( "notification" , JSON.stringify ( [newMessage , ...existingNotif] ) )
+            // }
 
 
-        // const notifGroup = _.groupBy(notification,'chatId')
 
-        // localStorage.setItem("notification",JSON.stringify(notification))
+        })
 
-        // socketConn?.emit("setup",currentUser)
-        // socketConn?.on("connected",(userdata)=>{
-        //     console.log("connected",userdata)
-        // })
-
-        console.log(notification)
+        // console.log(notification)
     })
-
-    // useEffect(()=>{
-    //     localStorage.setItem("notification",JSON.stringify(notification))
-    // },[notification>0])
 
 
     return(

@@ -3,13 +3,17 @@ export interface ChatModels{
     from :string,
     message : string,
     name? : string,
-    customer? : string
+    customer? : string,
+    propertyImage? : string
 }
 
-export interface chatRoommodels{
+export interface ChatRoommodels{
     firstUserId : string,
     secondUserId : string,
-    messages : string[],
+    unReadCount : number,
+    lastMessage : {
+        from : string
+    },
     chatId : string,
     chatName : string,
     customer : string,

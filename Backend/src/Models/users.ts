@@ -6,8 +6,9 @@ export interface userType extends Document{
     avatar : string,
     address? : string,
     ph_no? : number,
-    allProperties : Types.ObjectId[]
-    allChatIds : Types.ObjectId[]
+    allProperties : Types.ObjectId[],
+    allChatIds : Types.ObjectId[],
+    // allChatIds : string[],
     save(options?: SaveOptions): Promise<this>;
     _id : Types.ObjectId
 }

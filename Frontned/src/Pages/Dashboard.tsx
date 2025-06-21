@@ -2,11 +2,10 @@ import {PieChart} from "../Components/Dashboard/Piechart.tsx";
 import {Box , Stack , Typography} from "@mui/material";
 import {TotalRevenue} from "../Components/Dashboard/TotalRevenue.tsx";
 import {PropertyReferrals} from "../Components/Dashboard/PropertyReferrals.tsx";
-import {useEffect , useMemo , useState} from "react";
+import {useEffect , useState} from "react";
 import {PropertyCard} from "../Components/Property/PropertyCard.tsx";
-import {api_route , getProperties} from "../Network/Document_api.ts";
+import {getProperties} from "../Network/Document_api.ts";
 import {PropertyModel} from "../Models/PropertyModel.ts";
-import io from "socket.io-client";
 import {useSocket} from "../Context/socketContext.tsx";
 
 export function Dashboard() {
@@ -43,7 +42,7 @@ export function Dashboard() {
     useEffect(()=>{
 
         (async()=>{
-            await getProperties( { order : "asc", title : "", type : "all", pageSize : 10, start :  0  } ).then(res=>{
+            await getProperties( {sort_parameter : "price", order : "asc", title : "", type : "all", pageSize : 10, start :  0  } ).then(res=>{
                 return res as PropertyModel[]
             } )
                 .then((data)=>setAllProperties(data))
@@ -57,8 +56,18 @@ export function Dashboard() {
 
     return (
         // <HomeScreen>
-            <Box>
-                <h4 className="fw-light fs-4 p-1">Dashboard</h4>
+            <Box flexGrow={1}>
+                <Typography className="fw-light fs-4 p-1">Dashboard</Typography>
+                <Box
+                    // sx={{
+                    //     // display: "flex",
+                    //     flexWrap: "wrap",
+                    //     gap: "20px",
+                    //
+                    // }}
+                >
+
+
                 <Box flex={1} display="flex" flexWrap="wrap" gap={ 4 }  mt={3}>
                     {PieCharts.map(item=>(
                         <PieChart {...item}/>
@@ -89,6 +98,7 @@ export function Dashboard() {
                             <PropertyCard {...property}/>
                         ))}
                     </Box>
+                </Box>
                 </Box>
 
             </Box>

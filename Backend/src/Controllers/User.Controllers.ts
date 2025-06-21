@@ -47,7 +47,7 @@ const createUser : RequestHandler<unknown, unknown, SignUpBody, unknown>  = asyn
             throw Error("not found")
         }
 
-        const existedUser =  await UserModel.findOne({email : email})
+        const existedUser =  await UserModel.findOne({email : email}).populate('allChatIds')
 
         if(existedUser) {
             res.status ( 200 ).json ( existedUser )
@@ -112,8 +112,8 @@ const getUserById : RequestHandler<userIdProps,unknown, unknown, unknown> = asyn
 
         const user = await UserModel.findOne({_id : id}).populate('allProperties').populate( {
            path : 'allChatIds' , populate : {
-               path : 'secondUserId firstUserId',
-                select : 'name _id avatar',
+               path : 'secondUserId firstUserId lastMessage',
+                select : 'name _id avatar from to',
             }
         })
 

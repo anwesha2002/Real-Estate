@@ -27,7 +27,7 @@ export function CreateProperty() {
     const navigate = useNavigate()
 
     const location = useLocation()
-    console.log(location?.state?.id)
+    console.log(location?.state?.details)
 
     // const resolver: Resolver<PropertyModel> = async (values) => {
     //     return {
@@ -48,6 +48,8 @@ export function CreateProperty() {
         url : location?.state?.details?.photo || ""
     })
 
+    console.log(propertyImage)
+
     const { register, handleSubmit, formState : {errors , isSubmitting} } = useForm({
         defaultValues: {
             title: location?.state?.details?.title || "",
@@ -56,6 +58,7 @@ export function CreateProperty() {
             price : location?.state?.details?.price || "",
             location : location?.state?.details?.location || "",
             fileName : location?.state?.details?.fileName || "",
+            photo : location?.state?.details?.photo || ""
             // propertyImage : {name : "", url : ""},
             // photo : "",
             // email : ""
@@ -73,7 +76,7 @@ export function CreateProperty() {
         const user = JSON.parse(userData)
 
         if(location.state)
-            await UpdateProperty({id : location?.state?.id },{...data, photo :  propertyImage.url, fileName : propertyImage.name , email :  user.email})
+            await UpdateProperty({id : location?.state?.id },{...data, photo :  propertyImage?.url, fileName : propertyImage?.name  , email :  user.email})
                 .then(()=> {
                 toast("Property updated successfully", {
                     type : "success",
@@ -160,7 +163,7 @@ export function CreateProperty() {
 
                                 <Button component="label" sx={ { width : "fit-content", textTransform : "capitalize", fontSize : 16,  }} >
                                     Upload *
-                                    <input required  onChange={(e)=>handleImageChange(e.target?.files)} hidden accept="image/*" type="file" />
+                                    <input name={propertyImage?.name}  onChange={(e)=>handleImageChange(e.target?.files)} hidden accept="image/*" type="file" />
                                 </Button>
 
                         </Stack>
@@ -171,6 +174,7 @@ export function CreateProperty() {
                     <CustomButton disabled={ isSubmitting } type="submit" title={ isSubmitting ? "Updating..." : "Update" } variant="contained" sx={ { backgroundColor : "#475be8" } }/> :
                     <CustomButton disabled={ isSubmitting } type="submit" title={ isSubmitting ? "Submitting..." : "Submit" } variant="contained" sx={ { backgroundColor : "#475be8" } }/>
                 }
+                <CustomButton className="ms-4" handleClick={()=>{navigate("/property")}} type="button" title={ "Cancel" } variant="contained" sx={ { backgroundColor : "red" } }/>
                 <ToastContainer position="top-center" autoClose={2000}/>
             </form>
         </Box>

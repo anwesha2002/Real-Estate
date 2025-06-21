@@ -7,55 +7,68 @@ import {
     Stack ,
     Typography
 } from "@mui/material";
-import {MutableRefObject , useCallback , useEffect , useMemo , useRef , useState} from "react";
-import {MdAttachFile , MdAttachment , MdFrontLoader , MdLocationCity , MdSend} from "react-icons/md";
-import {api_route , getChat , sendMessage} from "../../Network/Document_api.ts";
+import {ChangeEvent , MutableRefObject  , useEffect  , useRef , useState} from "react";
+import {MdAttachFile  , MdLocationCity , MdSend} from "react-icons/md";
+import {getChat , sendMessage} from "../../Network/Document_api.ts";
 import {useLocation , useNavigate , useParams} from "react-router-dom";
 import {ChatModels} from "../../Models/chatModels.ts";
 import Button from "@mui/material/Button";
 import {useCheckImage} from "../../Util/checkImage.ts";
 import styles from "../../Style/messageRoom.module.css"
-import io from "socket.io-client";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import { useSocket} from "../../Context/socketContext.tsx";
-import _ from "lodash";
 
 interface chatProperties {
     _id : string,
-    firstUserId : {
+    from : {
         avatar : string,
         name : string,
         _id : string,
     },
-    secondUserId : {
+    to : {
         avatar : string,
         name : string,
         _id : string,
     },
     chatId : string,
-    chatName : string,
-    customer : string,
-    messages : {
-        from : string,
-        to : string,
-        message : string,
-        createdAt : string
-    }[]
+    // chatName : string,
+    // customer : string,
+    message : string
+
 }
 
-interface messageProperties {
-    to : string,
-    from : string ,
-    message : string,
-    createdAt : string
-}
+// interface conversationProps {
+//     id : string
+//     firstUserId : {
+//         avatar : string,
+//         name : string,
+//         _id : string,
+//     },
+//     secondUserId : {
+//         avatar : string,
+//         name : string,
+//         _id : string,
+//     },
+//     chatId : string
+//     chatName : string
+//     customer : string
+//     createdAt : string
+//     updatedAt : string
+//     unReadCount : number
+// }
+
+// interface messageProperties {
+//     to : string,
+//     from : string ,
+//     message : string,
+//     createdAt : string
+// }
 
 export function MessageRoom() {
 
-    const eleRef : MutableRefObject<HTMLDivElement | null> = useRef(null)
+    const eleRef : MutableRefObject<HTMLDivElement | null | any> = useRef(null)
     const location = useLocation()
     const navigate = useNavigate()
-    let  selectedChatCompare;
 
     const {id } = useParams()
 
@@ -63,13 +76,11 @@ export function MessageRoom() {
     if(!userData) return
     const currentuser = JSON.parse(userData)
 
-    const existingNotif  = JSON.parse(localStorage.getItem("notification"))
 
 
-    const [chats, setChats] = useState<chatProperties>()
-    const [allMessages, setMessages] = useState<messageProperties[]>([])
+    const [chats, setChats] = useState<chatProperties[]>([])
     const [sendingMessage, setSendingMessage] = useState<boolean>(false)
-    const [socketConnected, setSocketConnected] = useState<any, any>()
+    const [socketConnected, setSocketConnected] = useState< any>()
     const [typing, setTyping] = useState(false)
     const [isTyping, setIsTyping] = useState(false)
     // const [socket, setSocket] = useState<any>()
@@ -79,12 +90,16 @@ export function MessageRoom() {
         to : location?.state?.secondNameId ? location?.state?.secondNameId : location?.state?.chatDetails?.secondUserId?._id != currentuser._id ? location?.state?.chatDetails?.secondUserId?._id : location?.state?.chatDetails?.firstUserId?._id ,
         from : currentuser._id,
         message : "",
-        name :  `${location?.state?.propertyName} - ${location?.state?.name} `,
-        customer :  location?.state?.customer,
+        name :  `${location?.state?.propertyName} - ${location?.state?.customer} `,
+        customer :  location?.state?.customer ,
         propertyImage : location?.state?.propertyImage
     })
 
-    const {  notification, setNotification,  socketConn : socket, setSelected, selected } = useSocket()
+    const {    socketConn : socket, setSelected } = useSocket()
+
+    console.log(location)
+
+    // let count = useMemo(()=>{return 0}, [])
 
 
 
@@ -105,9 +120,9 @@ export function MessageRoom() {
     // },[id])
 
 
-    const resetNotif = () => {
-        notification.filter(notif=>notif.chatId != id)
-    }
+    // const resetNotif = () => {
+    //     notification.filter(notif=>notif.chatId != id)
+    // }
 
 
 
@@ -116,7 +131,7 @@ export function MessageRoom() {
         if(!socket) return
 
         socket.emit("setup",currentuser)
-        socket.on("connected",(userData)=> {
+        socket.on("connected",()=> {
             setSocketConnected ( true )
         })
 
@@ -135,26 +150,26 @@ export function MessageRoom() {
             await getChat(id as string)
                 .then((res)=> {
                     setChats ( res)
-                    setMessages( [...res?.messages])
-                    socket?.emit("join chat", res)
+                    // setMessages( [...res?.messages])
+                    console.log(res)
+                    socket?.emit("join chat", id)
+                    if(currentuser._id != res[res.length-1].from._id) socket?.emit("mark as read", id , currentuser._id)
                 })
-                .then(()=>{
-                    socket?.on("userJoined",(chatData)=>{
-                        console.log("userJoined : ", chatData)
-                        id && setSelected(id)
-
-                        // setNotification(newNotif)
-                        // console.log(notification)
-                        // console.log(newNotif)
-                    })
-                })
+                // .then(()=>{
+                //     socket?.on("userJoined",(chatData)=>{
+                //         console.log("userJoined : ", chatData)
+                //         id && setSelected(id)
+                //
+                //         // setNotification(newNotif)
+                //         // console.log(notification)
+                //         // console.log(newNotif)
+                //     })
+                // })
         })()
 
         // selectedChatCompare = id
         id && setSelected(id)
 
-        localStorage.setItem("notification",JSON.stringify(existingNotif.filter(notif=>notif.chatId != id)))
-        resetNotif()
 
     },[])
 
@@ -175,6 +190,10 @@ export function MessageRoom() {
     //
     // } , [] );
 
+    socket?.on("userJoined",(chatData)=> {
+        console.log ( "userJoined : " , chatData )
+    })
+
 
     async function handleClick(event : any){
         try {
@@ -186,11 +205,11 @@ export function MessageRoom() {
 
             await sendMessage(  id ,  messagebody )
                 .then((result)=>{
-                    // console.log(result)
+                    console.log(result)
                     // console.log(socket)
-                    socket?.emit("newMessage", result);
+                    // socket?.emit("newMessage", result);
                     // setMessages((prevState)=>([ ...prevState , result ]))
-                    setMessages([ ...allMessages , result ])
+                    setChats([ ...chats , result ])
                 })
                 .then(()=>{
                     // setChatID(res._id)
@@ -213,7 +232,19 @@ export function MessageRoom() {
         // setSelected(selectedChatCompare)
 
 
+
+        // socket?.on("updated convo", (lastConversation) => {
+        //     setConvoDetails(lastConversation)
+        //
+        // });
+
+        // socket?.on("userJoined",(chatId) => {
+        //     if(chatId)
+        // })
+
         socket?.on("message received", (newMessageRecieved) => {
+
+            // console.log("message received" )
 
             // console.log(selectedChatCompare)
             // console.log(newMessageRecieved.chatId)
@@ -226,7 +257,16 @@ export function MessageRoom() {
             // ) setSelected(false)
             // else setSelected(true)
 
+            console.log(newMessageRecieved)
 
+            // count += 1;
+
+            // console.log(count)
+
+            // if(count == 5) {
+            //     socket?.emit ( "mark as read" , id , currentuser._id )
+                // count = 0
+            // }
 
             // if (
             //     !selected || // if chat is not selected or doesn't match current chat
@@ -241,7 +281,7 @@ export function MessageRoom() {
             //     if(notification) setNotification([newMessageRecieved, ...notification]);
             //     else setNotification(newMessageRecieved)
             // } else {
-                setMessages([...allMessages, newMessageRecieved]);
+                setChats([...chats, newMessageRecieved]);
             // }
         });
 
@@ -249,7 +289,7 @@ export function MessageRoom() {
 
     // console.log(notification)
 
-    function handleTyping(event ){
+    function handleTyping(event :  ChangeEvent<HTMLTextAreaElement | HTMLInputElement> ){
 
         setInputfield ( (prevState) => ({ ...prevState , message : event.target.value }) )
 
@@ -257,7 +297,7 @@ export function MessageRoom() {
 
         if(!typing ){
             setTyping(true)
-            socket.emit('typing', { chatId : id, id : messagebody.to })
+            socket?.emit('typing', { chatId : id, id : messagebody.to })
         }
 
         const lastTyping = new Date().getTime()
@@ -267,7 +307,7 @@ export function MessageRoom() {
             const timeNow = new Date().getTime()
             const timeDiffrence = timeNow - lastTyping
             if(timeDiffrence > timerLength) {
-                socket.emit('stop typing',{ chatId : id, id : messagebody.to })
+                socket?.emit('stop typing',{ chatId : id, id : messagebody.to })
                 setTyping(false)
             }
         },timerLength)
@@ -280,7 +320,7 @@ export function MessageRoom() {
     function handleImageChange(file : FileList | null){
 
         if(!file) return
-        const reader = (readFile) => new Promise<string>((resolve)=>{
+        const reader = (readFile : File) => new Promise<string>((resolve)=>{
             const fileReader = new FileReader()
 
             fileReader.onload =() => resolve(fileReader.result as string)
@@ -305,9 +345,7 @@ export function MessageRoom() {
             <Box className="p-2" >
                 <Stack direction="row" display="flex" gap={1} mb={1} alignItems="center">
                     <Typography className=" fs-4 p-1 text-capitalize">
-                        {/*{chats?.secondUserId?.name || location?.state?.name}*/}
-                        {chats?.chatName}
-                        {/*SecondPerson*/}
+                        {location?.state?.chatDetails ? currentuser._id === location?.state?.chatDetails?.firstUserId?._id ? location?.state?.chatDetails?.chatName.split("-")[0] : location?.state?.chatDetails?.chatName :` ${location?.state?.propertyName} - ${location?.state?.secondNameId}`}
                     </Typography>
                     <button
                         onClick={()=>{
@@ -318,12 +356,12 @@ export function MessageRoom() {
                 </Stack>
                 <Box className="rounded-4 p-3 " flexGrow={1}  sx={{bgcolor : "#fff", height : "90vh", overflowY: "scroll", scrollbarColor : "primary", scrollbarWidth : 10 , display: "flex", flexDirection: "column", justifyContent : "space-between"}}>
                     <Box   sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
-                        {allMessages?.map((chat : ChatModels, index : number) => (
+                        {chats?.map((chat : any, index : number) => (
                             <ChatBubble
                                 key={index}
                                 message={chat?.message}
-                                isSentByCurrentUser={currentuser._id === chat?.from}
-                                avatar={chat?.from === chats?.firstUserId?._id ? chats?.firstUserId?.avatar : chats?.secondUserId?.avatar}
+                                isSentByCurrentUser={currentuser._id === chat?.from._id}
+                                avatar={chat?.from?.avatar }
                             />
                         ))}
                         {
@@ -401,7 +439,7 @@ function ChatBubble({ message, isSentByCurrentUser, avatar } : {message : string
         >
             <Box  maxWidth="70%"  >
                 <Stack direction={isSentByCurrentUser ? "row-reverse" : "row"} gap={2} alignItems="flex-end ">
-                    <Avatar src={ avatar }/>
+                    <Avatar src={avatar }/>
 
                     <Paper elevation={3} style={{ padding: '10px', borderRadius: '10px', backgroundColor: isSentByCurrentUser ? '#DCF8C6' : '#FFFFFF', wordBreak : "break-word", overflowX : "hidden" }} className={`${enlarge ? styles.enlargeImage : styles.normalSize} `}>
 

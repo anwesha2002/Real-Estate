@@ -1,11 +1,9 @@
 import {UserModels} from "../../Models/UserModels.ts";
 import {Link} from "react-router-dom";
 import { Box , Stack , Typography} from "@mui/material";
-// import {checkImage} from "../../Util/checkImage.ts";
 import {ElementType } from "react";
 import {MdEmail , MdLocationCity , MdPhone , MdPlace} from "react-icons/md";
 import { useCheckImage} from "../../Util/checkImage.ts";
-import logo from "../../assets/img.png";
 
 interface agentCardProperties extends UserModels{
     index : number,

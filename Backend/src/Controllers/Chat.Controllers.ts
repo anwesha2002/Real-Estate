@@ -4,6 +4,7 @@ import messageModel from "../Models/message"
 import chatModel from "../Models/Chats"
 import mongoose , {Types} from "mongoose";
 import UserModel , {userType} from "../Models/users";
+import {getIO } from "../socket/socket";
 
 interface messageId {
     id : string
@@ -24,7 +25,14 @@ const sendMessage : RequestHandler<messageId,unknown,messageBody,unknown> = asyn
 
     const {id} = req.params
 
+    const io = getIO()
+
+    // const socket = await io.fetchSockets()
+
     try {
+
+        if(!to || !from || !message ) throw new Error("messageBody not found")
+
 
         const session = await mongoose.startSession()
 
@@ -62,16 +70,20 @@ const sendMessage : RequestHandler<messageId,unknown,messageBody,unknown> = asyn
         //     res.status(200).json(updatemessageBody)
         // }
 
+        let messageBody : any
+
         if(!existingChat) {
-            const messageBody = await charRoomModel.create({
+            messageBody = await charRoomModel.create({
                 firstUserId : from,
                 secondUserId : to,
-                messages : [messagedata._id],
+                // messages : [messagedata._id],
                 // messages : req.body,
                 chatId : id,
                 chatName : name,
                 customer : customer,
-                propertyImage : propertyImage
+                propertyImage : propertyImage,
+                unReadCount : 1,
+                lastMessage : messagedata._id
             })
 
             // console.log(messageBody)
@@ -91,27 +103,90 @@ const sendMessage : RequestHandler<messageId,unknown,messageBody,unknown> = asyn
 
             await session.commitTransaction()
 
+            // io.emit("updated convo", messageBody)
+
             // res.status(201).json(messageBody)
         }
         else{
-            existingChat?.messages?.push(messagedata._id as Types.ObjectId)
 
-            await existingChat?.save({session})
 
-            await session.commitTransaction()
+            const room = io.sockets.adapter.rooms.get(id);
+
+            console.log(room)
+
+            console.log(room.size)
+
+            if(room.size ==1 ){
+
+                messageBody = await charRoomModel.findOneAndUpdate(
+                    { chatId : id},
+                    {
+                        $inc : {unReadCount : 1},
+                        $set : {lastMessage : messagedata._id },
+
+                    },
+                    {new  : true }
+                )
+            }else{
+                messageBody = await charRoomModel.findOneAndUpdate(
+                    { chatId : id},
+                    {
+                        $set : {lastMessage : messagedata._id },
+
+                    },
+                    {new  : true }
+                )
+            }
+
+
+
+            // existingChat?.messages?.push(messagedata._id as Types.ObjectId)
+
+            // await existingChat?.save({session})
+            //
+            // await session.commitTransaction()
         }
 
-        // if(existingChat._id ){
-        //         //     io.to(existingChat._id as any ).emit("newMessage", messagedata);
-        //         // }
+        await messageBody.save()
 
-        res.status(201).json(messagedata)
+        const populatedMessageData = await messagedata.populate({path : 'from to', select : 'name avatar _id'})
+
+        const populatedupdatedConvo = await messageBody.populate({path : 'lastMessage'})
+
+
+        await io.in(to).emit("message received", populatedMessageData)
+
+        // console.log(populatedupdatedConvo)
+
+        await io.in(to).to(id).emit("updated convo", populatedupdatedConvo)
+
+
+        res.status(201).json( populatedMessageData)
 
     }catch (err){
         res.status(500)
 
+        io.in(from).emit("updated convo", "couldn't send the message")
+
     }
 
+}
+
+export const updateConversation  = async (id : string) => {
+
+    try {
+        const messageBody = await charRoomModel.findOneAndUpdate(
+            { chatId : id},
+            {
+                $set : {unReadCount : 0},
+            }
+        )
+
+        return messageBody
+    }
+    catch (err){
+        console.log(err)
+    }
 }
 
  const getChatByChatId : RequestHandler<messageId,unknown,unknown, unknown> = async (req, res, next) => {
@@ -120,7 +195,9 @@ const sendMessage : RequestHandler<messageId,unknown,messageBody,unknown> = asyn
 
      try {
 
-        const messages = await charRoomModel.findOne({chatId : id}).populate( { path :  'secondUserId firstUserId' , select : 'name avatar id' }).populate('messages')
+        const messages = await messageModel.find({ chatId : id }).populate({path : 'from to', select : 'name avatar id'})
+
+        // const messages = await charRoomModel.findOne({chatId : id}).populate( { path :  'secondUserId firstUserId' , select : 'name avatar id' }).populate('messages')
 
          // console.log(messages)
 

@@ -37,7 +37,7 @@ export function Properties() {
             setPageSize ( 14 )
         }
         (async()=>{
-            await getProperties( { order, title, type, pageSize, start  } ).then(res=> setProperties(res))
+            await getProperties( {sort_parameter : "price", order, title, type, pageSize, start  } ).then(res=> setProperties(res))
         }) ()
     } , [order, title, type, pageSize, currentPage, items_per_page] );
 
@@ -48,7 +48,7 @@ export function Properties() {
 
 
     return (
-        <Box >
+        <Box flexGrow={1}>
 
             <Box p={2} display="flex" flexWrap="wrap" gap={3}>
                 <Stack direction="column" width="100%">
