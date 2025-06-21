@@ -69,9 +69,11 @@ export async function createProperty( propertyDetails : PropertyModel ) : Promis
 
     if(response.status === 200 || response.status === 201 ){
 
-        if(!localStorage.getItem("user")) return data
+        let currentUser = localStorage.getItem("user")
 
-        let user  = JSON.parse(localStorage.getItem("user"))
+        if (currentUser == null) return data
+
+        let user : any  = JSON.parse(currentUser)
 
         user = await getAgentsById(user?.userId )
 
