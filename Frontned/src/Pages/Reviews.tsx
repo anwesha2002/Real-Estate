@@ -6,6 +6,7 @@ import {PropertyModel} from "../Models/PropertyModel.ts";
 import  Grid  from "@mui/material/Grid2";
 import {UserModels} from "../Models/UserModels.ts";
 import {Link} from "react-router-dom";
+import {Toast} from "../Util/Toast.ts";
 
 interface propertyDetailsProps extends PropertyModel{
     creator : UserModels
@@ -24,6 +25,7 @@ export function Reviews() {
                 return res as propertyDetailsProps[]
             } )
                 .then((data)=>setAllProperties(data))
+                .catch((err)=>Toast.error(err?.message || err?.response?.data?.message || "Couldn't fetch property"))
         }) ()
     },[])
 

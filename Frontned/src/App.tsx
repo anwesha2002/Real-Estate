@@ -17,6 +17,7 @@ import {Box , Stack} from "@mui/material";
 import {Login} from "./Pages/Login.tsx";
 import {MessageRoom} from "./Components/Messages/MessageRoom.tsx";
 import {SignIn} from "./Components/Login/SignIn.tsx";
+import {ToastContainer} from "react-toastify";
 
 
 function App() {
@@ -111,19 +112,26 @@ function App() {
                     {/*<Route path="/home" element={<HomeScreen/>}/>*/}
 
                 </Routes>
-
-
-
             </Box>
 
-
-
-
         </Stack>
+                    {/*<ToastContainer style={{zIndex : 999999999999}} position='top-center'  autoClose={2000}/>*/}
+        <ToastContainer
+            position="bottom-right"
+            autoClose={2000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            stacked
+            style={{zIndex : 99999}}
+        />
 
 
         {/*<Navbar/>*/}
-
 
     </Container>
   )

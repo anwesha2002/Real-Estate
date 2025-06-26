@@ -9,6 +9,7 @@ import {UserModels} from "../../Models/UserModels.ts";
 import {CustomButton} from "../CustomButton.tsx";
 import {toast , ToastContainer} from 'react-toastify';
 import {useCheckImage} from "../../Util/checkImage.ts";
+import {Toast} from "../../Util/Toast.ts";
 
 interface detailsType extends PropertyModel{
     creator : UserModels
@@ -29,10 +30,12 @@ export function PropertyDetails() {
 
     useEffect ( () => {
         (async () => {
-            if(id) await getPropertyDetails(id).then((res)=> {
+            if(id) await getPropertyDetails(id)
+                .then((res)=> {
                 setDetails ( res )
                 setValue(res.avgRating ? res.avgRating :res.rating)
             })
+                .catch((err)=>Toast.error(err?.message || err?.response?.data?.message || "Couldn't fetch property details"))
         })()
     } , [] );
 
@@ -61,7 +64,7 @@ export function PropertyDetails() {
                     }, 2000);
 
                 })
-                .catch(err=>console.log(err))
+                .catch(err=>Toast.error(err?.message || err?.response?.data?.message || "Couldn't delete property"))
         }
     }
 
@@ -98,7 +101,7 @@ export function PropertyDetails() {
                 setIsRating(false)
             })
             .catch((err)=>{
-                console.log(err)
+                Toast.error(err?.message || err?.response?.data?.message || "Couldn't update property")
             })
 
     }

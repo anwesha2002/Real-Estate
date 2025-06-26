@@ -19,6 +19,7 @@ import {CustomButton} from "../CustomButton.tsx";
 import { useForm} from "react-hook-form";
 import {EditUserProfile} from "../../Network/Document_api.ts";
 import {useCheckImage} from "../../Util/checkImage.ts";
+import {Toast} from "../../Util/Toast.ts";
 
 
 // type FormValues = {
@@ -98,6 +99,7 @@ export function Profile( { profile, type } : ProfileProps) {
             .then(()=>{
                 window.location.reload()
             })
+            .catch((err)=>Toast.error(err?.message || err?.response?.data?.message || "User update failed"))
 
     }
 

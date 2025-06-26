@@ -3,6 +3,7 @@ import {getAllAgents} from "../Network/Document_api.ts";
 import {UserModels} from "../Models/UserModels.ts";
 import {Box , Typography} from "@mui/material";
 import {AgentCard} from "../Components/Agents/AgentCard.tsx";
+import {Toast} from "../Util/Toast.ts";
 
 export function Agents() {
 
@@ -12,6 +13,7 @@ export function Agents() {
        ( async () => {
            await getAllAgents()
                .then((res)=>setAgents(res))
+               .catch((err)=>Toast.error(err?.message || err?.response?.data?.message || "Couldn't fetch agents"))
        } )()
     } , [] );
 

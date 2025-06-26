@@ -18,7 +18,7 @@ import Button from "@mui/material/Button";
 import {CustomButton} from "../CustomButton.tsx";
 import {useState} from "react";
 import {createProperty , UpdateProperty} from "../../Network/Document_api.ts";
-import {toast , ToastContainer} from "react-toastify";
+import {Toast} from "../../Util/Toast.ts";
 
 
 
@@ -78,17 +78,21 @@ export function CreateProperty() {
         if(location.state)
             await UpdateProperty({id : location?.state?.id },{...data, photo :  propertyImage?.url, fileName : propertyImage?.name  , email :  user.email})
                 .then(()=> {
-                toast("Property updated successfully", {
-                    type : "success",
-                    theme : "colored",
-                    position : "top-center",
-                    draggable: true,
-                })
+                    Toast.success("Property updated successfully")
+                // toast("Property updated successfully", {
+                //     type : "success",
+                //     theme : "colored",
+                //     position : "top-center",
+                //     draggable: true,
+                // })
             })
                 .then(()=>navigate ( "/property" ))
+                .catch((err)=>Toast.error(err?.message || err?.response?.data?.message || "Property update failed"))
         else
             await createProperty({...data, photo :  propertyImage.url, fileName : propertyImage.name , email :  user.email})
+            .then(()=>Toast.success("Property created successfully"))
             .then(()=>navigate("/property"))
+            .catch((err)=>Toast.error(err?.message || err?.response?.data?.message || "Couldn't create property "))
 
 
 
@@ -175,7 +179,7 @@ export function CreateProperty() {
                     <CustomButton disabled={ isSubmitting } type="submit" title={ isSubmitting ? "Submitting..." : "Submit" } variant="contained" sx={ { backgroundColor : "#475be8" } }/>
                 }
                 <CustomButton className="ms-4" handleClick={()=>{navigate("/property")}} type="button" title={ "Cancel" } variant="contained" sx={ { backgroundColor : "red" } }/>
-                <ToastContainer position="top-center" autoClose={2000}/>
+                {/*<ToastContainer position="top-center" autoClose={2000}/>*/}
             </form>
         </Box>
     );

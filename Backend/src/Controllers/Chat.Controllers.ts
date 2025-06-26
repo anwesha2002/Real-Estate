@@ -5,6 +5,7 @@ import chatModel from "../Models/Chats"
 import mongoose , {Types} from "mongoose";
 import UserModel , {userType} from "../Models/users";
 import {getIO } from "../socket/socket";
+import createHttpError from "http-errors";
 
 interface messageId {
     id : string
@@ -31,7 +32,7 @@ const sendMessage : RequestHandler<messageId,unknown,messageBody,unknown> = asyn
 
     try {
 
-        if(!to || !from || !message ) throw new Error("messageBody not found")
+        if(!to || !from || !message ) throw createHttpError("messageBody not found")
 
 
         const session = await mongoose.startSession()
@@ -44,6 +45,10 @@ const sendMessage : RequestHandler<messageId,unknown,messageBody,unknown> = asyn
         const existingChat = await charRoomModel.findOne({ chatId : id}) as chatRoomType
         const user1 = await UserModel.findOne({_id : from}).session(session) as userType
         const user2 = await UserModel.findOne({_id : to}).session(session) as userType
+
+        if(!user1 || !user2) createHttpError(400,"User not found")
+
+        if(!existingChat) createHttpError(400,"Chat not found")
 
 
         const messagedata = await messageModel.create({
@@ -164,7 +169,8 @@ const sendMessage : RequestHandler<messageId,unknown,messageBody,unknown> = asyn
         res.status(201).json( populatedMessageData)
 
     }catch (err){
-        res.status(500)
+
+        next(err)
 
         io.in(from).emit("updated convo", "couldn't send the message")
 
@@ -205,7 +211,7 @@ export const updateConversation  = async (id : string) => {
 
 
      }catch (err){
-        res.status(500)
+        next(err)
      }
 
 }

@@ -5,6 +5,7 @@ import { MdLocationCity } from "react-icons/md";
 import { useNavigate} from "react-router-dom";
 import { useSocket} from "../Context/socketContext.tsx";
 import _ from "lodash"
+import {Toast} from "../Util/Toast.ts";
 
 
 interface chatIds {
@@ -143,6 +144,7 @@ export function Messages() {
                 .then((data)=>{
                     setAllChats(data )
                 })
+                .catch((err)=>Toast.error(err?.message || err?.response?.data?.message || "Couldn't fetch agent detail"))
         })()
     } , [] );
 

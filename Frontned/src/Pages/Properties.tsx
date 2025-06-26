@@ -37,7 +37,9 @@ export function Properties() {
             setPageSize ( 14 )
         }
         (async()=>{
-            await getProperties( {sort_parameter : "price", order, title, type, pageSize, start  } ).then(res=> setProperties(res))
+            await getProperties( {sort_parameter : "price", order, title, type, pageSize, start  } )
+            .then(res=> setProperties(res))
+            .catch((err)=>err?.message || err?.response?.data?.message || "Couldn't fetch property")
         }) ()
     } , [order, title, type, pageSize, currentPage, items_per_page] );
 

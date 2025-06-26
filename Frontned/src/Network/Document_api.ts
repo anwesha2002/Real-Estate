@@ -12,39 +12,76 @@ type getPropertiesQuery = {
     sort_parameter : string
 }
 
-// const api_route = "https://real-estate-ueor.onrender.com"
+// export const api_route = "https://real-estate-ueor.onrender.com"
 export const api_route = "http://localhost:5000"
+
+export async function signUp( credentials : UserModels ) : Promise<UserModels> {
+    // const {name, email, avatar} = credentials
+
+
+    // if(credentials){
+    const response = await fetch(`${api_route}/api/users`,{
+        method : "POST",
+        headers : { 'Content-Type' : 'application/json' },
+        body : JSON.stringify(credentials)
+    })
+    const data = await response.json()
+    // console.log(response.json())
+
+    if(response.status === 200 || response.status === 201 ){
+        localStorage.setItem(
+            "user",
+            JSON.stringify({
+                // ...credentials,
+                // avatar : avatar,
+                ...credentials,
+                userId : data._id
+            })
+        )
+
+        return data
+    }else {
+        // return Promise.reject()
+        const errorBody = await response.json();
+        const errorMessage = errorBody.error;
+        throw Error("request fail with" + errorMessage)
+    }
+    // }
+    //     return response
+
+}
 
 export async function login( credentials : UserModels ) : Promise<UserModels> {
     // const {name, email, avatar} = credentials
 
 
     // if(credentials){
-        const response = await fetch(`${api_route}/api/users`,{
+        const response = await fetch(`${api_route}/api/users/login`,{
             method : "POST",
             headers : { 'Content-Type' : 'application/json' },
             body : JSON.stringify(credentials)
         })
-        const data = await response.json()
         // console.log(response.json())
 
-        if(response.status === 200 || response.status === 201 ){
+        if(response.status === 200  ){
+            const data = await response.json()
             localStorage.setItem(
                 "user",
                 JSON.stringify({
                     // ...credentials,
                     // avatar : avatar,
                     ...credentials,
-                    userId : data._id
+                    userId : data?._id
                 })
             )
 
             return data
-        }else {
+        }
+        else {
             // return Promise.reject()
             const errorBody = await response.json();
             const errorMessage = errorBody.error;
-            throw Error("request fail with" + errorMessage)
+            throw Error("Request failed with status: " + response.status + " message: " + errorMessage)
         }
     // }
     //     return response
@@ -94,12 +131,14 @@ export async function createProperty( propertyDetails : PropertyModel ) : Promis
 }
 
 export async function getProperties({sort_parameter , order, title, type, pageSize, start} : getPropertiesQuery) : Promise<PropertyModel[]>{
-    const response = await fetch(`${api_route}/api/properties?_end=${pageSize}&_sort=${sort_parameter}&_order=${order}&_title_like=${title}&propertyType=${ type === "all" ? "" : type}&_start=${start}`,{
-        method : "GET",
-        headers : { 'Content-Type' : 'application/json' },
-    })
 
-    return response.json()
+        const response = await fetch(`${api_route}/api/properties?_end=${pageSize}&_sort=${sort_parameter}&_order=${order}&_title_like=${title}&propertyType=${ type === "all" ? "" : type}&_start=${start}`,{
+            method : "GET",
+            headers : { 'Content-Type' : 'application/json' },
+        })
+
+        return response.json()
+
 }
 
 export async function getPropertyDetails(id : string) {

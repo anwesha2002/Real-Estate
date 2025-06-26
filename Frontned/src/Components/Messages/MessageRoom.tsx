@@ -199,6 +199,8 @@ export function MessageRoom() {
         try {
 
             if(!id) return
+
+            if(messagebody.message.trim().length === 0 || !messagebody.to || messagebody.from) return
             setSendingMessage(true)
             event.preventDefault()
             setInputfield( {to : messagebody.to, from : currentuser._id, message : messagebody.message })

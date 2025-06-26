@@ -12,9 +12,10 @@ import Button from "@mui/material/Button";
 import {CustomButton} from "../Components/CustomButton.tsx";
 import {useForm} from "react-hook-form";
 import {UserModels} from "../Models/UserModels.ts";
-import {login} from "../Network/Document_api.ts";
+import {signUp} from "../Network/Document_api.ts";
 import {useState} from "react";
 import {Link , useNavigate} from "react-router-dom";
+import {Toast} from "../Util/Toast.ts";
 
 export function Login() {
     
@@ -32,15 +33,26 @@ export function Login() {
     
     async function onSubmit(data : UserModels) {
         // console.log( { ...data, avatar : photo })
-       await login ( { ...data, avatar : photo } )
+
+        if(!data || !photo) {
+            Toast.error("Profile photo not found")
+            return
+        }
+
+       await signUp ( { ...data, avatar : photo } )
            .then ( (res )  => localStorage.setItem("tokens", `${JSON.stringify(res)}`) )
            .then(()=>navigate("/dashboard"))
-           .catch((err)=>console.log(err))
+           .catch((err)=>Toast.error(err?.message || err?.response?.data?.message || 'Failed to sign-up'))
     }
 
     function handleImageChange(file : FileList | null){
 
-        if(!file) return
+        if(!file) {
+            Toast.error("Photo not found")
+            return
+        }
+
+
         const reader = (readFile : File) => new Promise<string>((resolve)=>{
             const fileReader = new FileReader()
             fileReader.onload = () => resolve(fileReader.result as string)
@@ -77,7 +89,7 @@ export function Login() {
                             <FormLabel><Typography fontSize={16} fontWeight={500} my="10px">Avatar</Typography></FormLabel>
                             <Button component="label" sx={ { width : "fit-content", textTransform : "capitalize", fontSize : 16,  }} >
                                 Upload *
-                                <input {...register("avatar")} required={true} onChange={(e)=>handleImageChange(e?.target?.files)} hidden accept="image/*" type="file" />
+                                <input {...register("avatar")} onChange={(e)=>handleImageChange(e?.target?.files)} hidden accept="image/*" type="file" />
                             </Button>
                             {errors?.avatar && <FormHelperText>{errors.avatar.message}</FormHelperText>}
                         </FormControl>

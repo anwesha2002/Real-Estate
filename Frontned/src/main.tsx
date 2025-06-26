@@ -5,6 +5,7 @@ import App from './App.tsx'
 import {ClerkProvider} from "@clerk/clerk-react";
 import "bootstrap/dist/css/bootstrap.css"
 import "./base.scss"
+import "react-toastify/dist/ReactToastify.css"
 import {BrowserRouter} from "react-router-dom";
 import {SideBarProvider} from "./Context/SidebarContext.tsx";
 

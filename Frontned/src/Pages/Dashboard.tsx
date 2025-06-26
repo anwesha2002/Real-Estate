@@ -7,6 +7,7 @@ import {PropertyCard} from "../Components/Property/PropertyCard.tsx";
 import {getProperties} from "../Network/Document_api.ts";
 import {PropertyModel} from "../Models/PropertyModel.ts";
 import {useSocket} from "../Context/socketContext.tsx";
+import {Toast} from "../Util/Toast.ts";
 
 export function Dashboard() {
 
@@ -46,6 +47,7 @@ export function Dashboard() {
                 return res as PropertyModel[]
             } )
                 .then((data)=>setAllProperties(data))
+                .catch((err)=>Toast.error(err?.message || err?.response?.data?.message || "couldn't get properties"))
         }) ()
     },[])
 

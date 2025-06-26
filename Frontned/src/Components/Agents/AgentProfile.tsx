@@ -3,6 +3,7 @@ import {useEffect , useState} from "react";
 import {getAgentsById} from "../../Network/Document_api.ts";
 import {useParams} from "react-router-dom";
 import {UserModels} from "../../Models/UserModels.ts";
+import {Toast} from "../../Util/Toast.ts";
 
 export function AgentProfile() {
 
@@ -14,7 +15,9 @@ export function AgentProfile() {
     useEffect ( () => {
 
         (async ()=>{
-            await getAgentsById(id).then(res=> setProfile(res))
+            await getAgentsById(id)
+                .then(res=> setProfile(res))
+                .catch((err)=>Toast.error(err?.message || err?.response?.data?.message || "Couldn't fetch agent details"))
         })()
     } , [] );
 

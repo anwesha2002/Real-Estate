@@ -3,6 +3,7 @@ import {RequestHandler} from "express";
 import {Schema} from "mongoose";
 import {v2 as cloudinary} from "cloudinary"
 import env from "../util/validEnv";
+import createHttpError from "http-errors";
 
 cloudinary.config({
     cloud_name: env.CLOUDINARY_CLOUD_NAME,
@@ -44,7 +45,7 @@ const createUser : RequestHandler<unknown, unknown, SignUpBody, unknown>  = asyn
     try {
 
         if(!name || !email){
-            throw Error("not found")
+            throw createHttpError(" Fill all the fields ")
         }
 
         const existedUser =  await UserModel.findOne({email : email}).populate('allChatIds')
@@ -55,7 +56,7 @@ const createUser : RequestHandler<unknown, unknown, SignUpBody, unknown>  = asyn
         }
 
         if(!avatar){
-            throw Error("picture not found")
+            throw createHttpError("picture not found")
         }
 
         const newUser = await UserModel.create({
@@ -67,6 +68,28 @@ const createUser : RequestHandler<unknown, unknown, SignUpBody, unknown>  = asyn
        res.status(201).json(newUser)
     }catch (error) {
         next(error);
+    }
+}
+
+const loginUser : RequestHandler<unknown, unknown, SignUpBody, unknown>  = async (req , res, next ) => {
+    const { name, email } = req.body
+    try {
+
+        if(!name || !email){
+            throw Error("not found")
+        }
+
+        const existedUser =  await UserModel.findOne({email : email}).populate('allChatIds')
+
+        if(!existedUser) {
+            throw createHttpError(404,"user not found")
+
+        }
+
+        res.status(200).json(existedUser)
+    }catch (error) {
+        next(error);
+        // res.status(500).json()
     }
 }
 
@@ -82,7 +105,7 @@ const editUser : RequestHandler<userId, unknown, UserDetails, unknown> = async (
     try {
 
         if(!address || !avatar || !ph_no || ! email || !name) {
-            throw Error("not found")
+            throw createHttpError("Fields not found")
         }
 
         const newAvatar = await cloudinary.uploader.upload(avatar)
@@ -98,7 +121,7 @@ const editUser : RequestHandler<userId, unknown, UserDetails, unknown> = async (
         res.status(200).json(  newUserDetails )
 
     }catch (error : any){
-        res.status(500).json(error)
+        next(error)
     }
 }
 
@@ -117,13 +140,13 @@ const getUserById : RequestHandler<userIdProps,unknown, unknown, unknown> = asyn
             }
         })
 
-        if(!user) throw Error("User not found")
+        if(!user) throw createHttpError("User not found")
 
         res.status(200).json(user)
 
     }catch (error : any){
-        res.status(500).send( error );
+        next(error)
     }
 }
 
-export {getUserById, getAllUsers, createUser, editUser}
+export {getUserById, getAllUsers, createUser, editUser, loginUser}

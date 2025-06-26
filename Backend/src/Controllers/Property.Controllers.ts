@@ -7,6 +7,7 @@ import UserModel , {userType} from "../Models/users"
 import mongoose , {Schema , SortOrder} from "mongoose";
 import { RequestHandler} from "express";
 import {couch} from "globals";
+import createHttpError from "http-errors";
 
 cloudinary.config({
     cloud_name: env.CLOUDINARY_CLOUD_NAME,
@@ -68,7 +69,8 @@ const getAllProperties : RequestHandler<unknown, unknown, unknown, queryType> = 
         res.header('x-total-count', `${count}`)
         res.header('Access-Control-Expose-Headers', 'x-total-count' )
 
-        if(!allProperties) throw Error("properties don't exist")
+        if(!allProperties) throw createHttpError(404,"properties don't exist")
+
         res.status(200).json(allProperties)
     }catch (err){
         next(err)
@@ -87,8 +89,10 @@ const getPropertyDetails : RequestHandler<detailsPramsProps, unknown, unknown, u
     try {
         const ExistingProperty = await PropertyModel.findOne( { _id : id }).populate("creator")
 
-        if(ExistingProperty) res.status(200).json(  ExistingProperty   )
-        else res.status(400).send( "Property Not Found")
+        if(!ExistingProperty) throw createHttpError(400,"Property Not Found")
+
+        res.status(200).json(  ExistingProperty   )
+
     }catch (err){
         console.log(err)
     }
@@ -102,11 +106,11 @@ const createProperty : RequestHandler<unknown, unknown, CreatePropertyBody, unkn
 
         const user  = await UserModel.findOne({email : email}).session(session) as userType
 
-        if(!user) throw Error("user not found")
+        if(!user) throw createHttpError("user not found")
 
         const photoURL = await cloudinary.uploader.upload(photo)
 
-        console.log(photoURL.url)
+        if(!photoURL.url) throw createHttpError("Photo not found")
 
         const newProperty = await PropertyModel.create({
             title :  title,
@@ -148,6 +152,7 @@ const updateProperty : RequestHandler<detailsPramsProps, unknown, CreateProperty
 
         const existingProperty = await PropertyModel.findById({_id : id}) as PropertyType
 
+        if (!existingProperty) throw createHttpError(404,"Property not found")
 
         const sum = rating && (
             (existingProperty.rating5 ? existingProperty.rating5 *5 : 0)
@@ -198,11 +203,10 @@ const updateProperty : RequestHandler<detailsPramsProps, unknown, CreateProperty
 
         console.log(newProperty)
 
-
         res.status(200).json(newProperty)
 
     }catch (err : any){
-        res.status(500).json(err)
+        next(err)
     }
 }
 
@@ -214,7 +218,7 @@ const deleteProperty : RequestHandler<detailsPramsProps,unknown, unknown, unknow
         const {id }= req.params
 
         const PropertyToDelete = await PropertyModel.findById({_id : id}).populate('creator') as PropertyType
-        if(!PropertyToDelete) throw new Error("Property not found")
+        if(!PropertyToDelete) throw createHttpError("Property not found")
 
         const session = await mongoose.startSession()
 
@@ -236,7 +240,7 @@ const deleteProperty : RequestHandler<detailsPramsProps,unknown, unknown, unknow
         res.status(200).json("Property deleted successfully")
 
     }catch (err : any){
-        res.status(500).send( err.message)
+        next(err)
     }
 }
 
