@@ -4,12 +4,14 @@
 A modern, full-stack real estate platform for property listings, agent management, and real-time chat. Built with a robust Node.js/Express backend and a sleek React + Vite frontend, this project is designed for scalability, performance, and a seamless user experience.
 
 
-<div display="flex" justify-content="center" margin-top="4px">
+<div display="flex" align="center" class="text-center">
  
  <img alt="last-commit" src="https://img.shields.io/github/last-commit/anwesha2002/Real-Estate?style=flat&amp;logo=git&amp;logoColor=white&amp;color=0080ff" class="inline-block mx-1" style="margin: 0px 2px;"/>
  <img alt="repo-top-language" src="https://img.shields.io/github/languages/top/anwesha2002/Real-Estate?style=flat&amp;color=0080ff" class="inline-block mx-1" style="margin: 0px 2px;"/>
  <img alt="repo-language-count" src="https://img.shields.io/github/languages/count/anwesha2002/Real-Estate?style=flat&amp;color=0080ff" class="inline-block mx-1" style="margin: 0px 2px;"/>
 </div>
+
+
 
 ## 🚀 Features
  - Property Listings: Browse, search, and filter properties with rich details and images.
@@ -58,6 +60,10 @@ real_estate_app/
 
  - Frontend: React, Vite, TypeScript, SCSS, Socket.io-client
  - Backend: Node.js, Express, MongoDB, Mongoose, Socket.io
+
+<div display="flex" align="center" class="text-center">
+  <img alt="React" src="https://img.shields.io/badge/React-61DAFB.svg?style=flat&amp;logo=React&amp;logoColor=black" class="inline-block mx-1" style="margin: 0px 2px;"/>
+</div>
    
 ## ⚡ Getting Started
 
