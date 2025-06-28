@@ -231,7 +231,7 @@ export function Messages() {
                                                 {/*{ (chat.chatName)?.split ( "-" )[0] }*/}
                                             </Typography>
                                             <span className="text-capitalize text-body-tertiary fs-6">{ currentUser?._id === chat.secondUserId._id ? chat?.firstUserId?.name : chat?.secondUserId?.name }</span>
-                                            <span style={{fontSize:"12px"}} className="text-capitalize text-primary ">online</span>
+                                            {/*<span style={{fontSize:"12px"}} className="text-capitalize text-primary ">online</span>*/}
                                         </Stack>
                                 {/*}*/}
                                 {/*<Typography fontSize={22}  color="#11142d" className="text-capitalize">*/}

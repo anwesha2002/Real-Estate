@@ -96,7 +96,7 @@ export function Dashboard() {
                     </Typography>
 
                     <Box mt={2.5} sx={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                        {allProperties.map((property) => (
+                        {allProperties?.map((property) => (
                             <PropertyCard {...property}/>
                         ))}
                     </Box>
