@@ -1,9 +1,15 @@
 # Real Estate App
 
 
-<img alt="last-commit" src="https://img.shields.io/github/last-commit/anwesha2002/Real-Estate?style=flat&amp;logo=git&amp;logoColor=white&amp;color=0080ff" class="inline-block mx-1" style="margin: 0px 2px;"/>
-
 A modern, full-stack real estate platform for property listings, agent management, and real-time chat. Built with a robust Node.js/Express backend and a sleek React + Vite frontend, this project is designed for scalability, performance, and a seamless user experience.
+
+
+<div display="flex" justify-content="center" margin-top="4px">
+ 
+ <img alt="last-commit" src="https://img.shields.io/github/last-commit/anwesha2002/Real-Estate?style=flat&amp;logo=git&amp;logoColor=white&amp;color=0080ff" class="inline-block mx-1" style="margin: 0px 2px;"/>
+ <img alt="repo-top-language" src="https://img.shields.io/github/languages/top/anwesha2002/Real-Estate?style=flat&amp;color=0080ff" class="inline-block mx-1" style="margin: 0px 2px;"/>
+ <img alt="repo-language-count" src="https://img.shields.io/github/languages/count/anwesha2002/Real-Estate?style=flat&amp;color=0080ff" class="inline-block mx-1" style="margin: 0px 2px;"/>
+</div>
 
 ## 🚀 Features
  - Property Listings: Browse, search, and filter properties with rich details and images.
