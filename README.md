@@ -64,6 +64,10 @@ real_estate_app/
 <div display="flex" align="center" class="text-center">
   <img alt="React" src="https://img.shields.io/badge/React-61DAFB.svg?style=flat&amp;logo=React&amp;logoColor=black" class="inline-block mx-1" style="margin: 0px 2px;"/>
   <img alt="Typescript" src="https://img.shields.io/badge/TypeScript-61DAFB.svg?style=flat&amp;logo=TypeScript&amp;logoColor=black" class="inline-block mx-1" style="margin: 0px 2px;"/>
+  <img alt="Express" src="https://img.shields.io/badge/Express-000000.svg?style=flat&amp;logo=Express&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+  <img alt="Socket.io" src="https://img.shields.io/badge/Socket.io-000000.svg?style=flat&amp;logo=Socket.io&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+  <img alt="JSON" src="https://img.shields.io/badge/JSON-000000.svg?style=flat&amp;logo=JSON&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+  <img alt="Node.js" src="https://img.shields.io/badge/Node.js-3492FF.svg?style=flat&amp;logo=Node.js&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;"/>
   <img alt="Mongoose" src="https://img.shields.io/badge/Mongoose-F04D35.svg?style=flat&amp;logo=Mongoose&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;"/>
   <img alt="Nodemon" src="https://img.shields.io/badge/Nodemon-76D04B.svg?style=flat&amp;logo=Nodemon&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;"/>
   <img alt="Lodash" src="https://img.shields.io/badge/Lodash-3492FF.svg?style=flat&amp;logo=Lodash&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;"/>
