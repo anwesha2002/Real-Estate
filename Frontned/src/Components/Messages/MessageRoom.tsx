@@ -196,13 +196,15 @@ export function MessageRoom() {
 
 
     async function handleClick(event : any){
+
+        event.preventDefault()
+
         try {
 
             if(!id) return
 
-            if(messagebody.message.trim().length === 0 || !messagebody.to || messagebody.from) return
+            if(messagebody.message.trim().length === 0 || !messagebody.to || !messagebody.from) return
             setSendingMessage(true)
-            event.preventDefault()
             setInputfield( {to : messagebody.to, from : currentuser._id, message : messagebody.message })
 
             await sendMessage(  id ,  messagebody )
@@ -410,7 +412,7 @@ export function MessageRoom() {
                             // setInputfield ( (prevState) => ({ ...prevState , message : event.target.value }) )
                                 handleTyping(event)
                             }
-                        } ref={eleRef} value={eleRef?.current?.value ? eleRef.current.value : messagebody.message}  className="d-flex flex-grow-1 focus:outline-none mui-f" />
+                        } ref={eleRef} value={eleRef?.current?.value ? eleRef.current.value : messagebody.message}  className="d-flex flex-grow-1 focus:outline-none mui-f" id="message" name="message" />
                         {sendingMessage ?
                             <CircularProgress size={20} color="inherit" className="me-2"/> :
                             <button  type="submit" className="btn btn-secondary position-absolute end-0 me-2"><MdSend  size={26}/></button>

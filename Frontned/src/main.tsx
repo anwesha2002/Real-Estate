@@ -2,29 +2,28 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-import {ClerkProvider} from "@clerk/clerk-react";
 import "bootstrap/dist/css/bootstrap.css"
 import "./base.scss"
 import "react-toastify/dist/ReactToastify.css"
 import {BrowserRouter} from "react-router-dom";
 import {SideBarProvider} from "./Context/SidebarContext.tsx";
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+// const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
 
-if (!PUBLISHABLE_KEY) {
-    throw new Error("Missing Publishable Key")
-}
+// if (!PUBLISHABLE_KEY) {
+//     throw new Error("Missing Publishable Key")
+// }
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
       <BrowserRouter>
           {/*<SocketContextProvider>*/}
-              <ClerkProvider publishableKey={PUBLISHABLE_KEY} >
+          {/*    <ClerkProvider publishableKey={PUBLISHABLE_KEY} >*/}
                   <SideBarProvider>
                     <App />
                   </SideBarProvider>
-              </ClerkProvider>
+              {/*</ClerkProvider>*/}
           {/*</SocketContextProvider>*/}
       </BrowserRouter>
   </StrictMode>,

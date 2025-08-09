@@ -235,7 +235,7 @@ export async function sendMessage(id : string, message : ChatModels)  {
 
     // console.log(id)
     // console.log(message)
-    // console.log(message)
+    console.log(message)
 
     const response = await fetch(`${api_route}/api/chat/${id}`, {
         method : "POST",

@@ -4,7 +4,9 @@ import env from "../util/validEnv"
 import { v2 as cloudinary } from 'cloudinary';
 import PropertyModel , {PropertyType} from "../Models/Property"
 import UserModel , {userType} from "../Models/users"
-import mongoose , {Schema , SortOrder} from "mongoose";
+import chatRoomModel , {chatRoomType} from "../Models/chatRoom"
+import messageModel from "../Models/message"
+import mongoose , {Schema , SortOrder , startSession} from "mongoose";
 import { RequestHandler} from "express";
 import {couch} from "globals";
 import createHttpError from "http-errors";
@@ -233,6 +235,9 @@ const deleteProperty : RequestHandler<detailsPramsProps,unknown, unknown, unknow
                 }
             },
         )
+
+        await chatRoomModel.deleteOne({ chatId : { $regex : `${id}` } }, {session})
+        await messageModel.deleteMany({ chatId : { $regex : `${id}` } }, {session})
 
         await PropertyToDelete.creator?.save({ session });
         await session.commitTransaction();
