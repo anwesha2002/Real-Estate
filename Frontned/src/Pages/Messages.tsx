@@ -210,7 +210,7 @@ export function Messages() {
                         >
                             <Stack gap={2} direction="row" flexWrap="wrap" alignItems="center">
 
-                                <Badge color="primary" badgeContent={notification ?  notification?.unReadCount : chat?.lastMessage?.from === currentUser?._id ? 0 : chat?.unReadCount  } anchorOrigin={{
+                                <Badge color="primary" badgeContent={notification ? notification.chatId === chat.chatId ?  notification?.unReadCount : 0 : chat?.lastMessage?.from === currentUser?._id ? 0 : chat?.unReadCount  } anchorOrigin={{
                                     vertical: 'bottom',
 
                                 }}>

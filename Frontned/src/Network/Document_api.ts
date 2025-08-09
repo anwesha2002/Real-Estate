@@ -12,8 +12,8 @@ type getPropertiesQuery = {
     sort_parameter : string
 }
 
-export const api_route = "https://real-estate-ueor.onrender.com"
-// export const api_route = "http://localhost:5000"
+// export const api_route = "https://real-estate-ueor.onrender.com"
+export const api_route = "http://localhost:5000"
 
 export async function signUp( credentials : UserModels ) : Promise<UserModels> {
     // const {name, email, avatar} = credentials
@@ -235,7 +235,7 @@ export async function sendMessage(id : string, message : ChatModels)  {
 
     // console.log(id)
     // console.log(message)
-    // console.log(message)
+    console.log(message)
 
     const response = await fetch(`${api_route}/api/chat/${id}`, {
         method : "POST",
