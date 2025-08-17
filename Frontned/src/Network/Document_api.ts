@@ -12,8 +12,8 @@ type getPropertiesQuery = {
     sort_parameter : string
 }
 
-export const api_route = "https://real-estate-ueor.onrender.com"
-// export const api_route = "http://localhost:5000"
+// export const api_route = "https://real-estate-ueor.onrender.com"
+export const api_route = "http://localhost:5000"
 
 export async function signUp( credentials : UserModels ) : Promise<UserModels> {
     // const {name, email, avatar} = credentials
@@ -273,6 +273,38 @@ export async function getChat(id : string)  {
 
 
     // console.log(updatedUserData)
+
+    return updatedUserData;
+
+}
+
+export async function clearChat(id : string){
+    const response = await fetch(`${api_route}/api/chat/${id}`, {
+        method : "DELETE",
+        headers : { 'Content-Type' : 'application/json' },
+    })
+
+    if(!response.ok){
+        throw new Error("error occured")
+    }
+
+    const updatedUserData = await response.json();
+
+    return updatedUserData;
+
+}
+
+export async function deleteChat(id : string){
+    const response = await fetch(`${api_route}/api/chat/delete/${id}`, {
+        method : "DELETE",
+        headers : { 'Content-Type' : 'application/json' },
+    })
+
+    if(!response.ok){
+        throw new Error("error occured")
+    }
+
+    const updatedUserData = await response.json();
 
     return updatedUserData;
 

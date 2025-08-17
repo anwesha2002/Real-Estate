@@ -5,8 +5,8 @@ export class Toast{
         toast.error(errormessage, {theme : "colored"})
     }
 
-    static success(errormessage : string){
-        toast.success(errormessage, {theme : "colored"})
+    static success(successmessage : string){
+        toast.success(successmessage, {theme : "colored"})
     }
 
     static  info(errormessage : string){

@@ -7,7 +7,7 @@ import {
     Stack ,
     Typography
 } from "@mui/material";
-import {ChangeEvent , MutableRefObject  , useEffect  , useRef , useState} from "react";
+import {ChangeEvent , MutableRefObject  , useEffect , useMemo , useRef , useState} from "react";
 import {MdAttachFile  , MdLocationCity , MdSend} from "react-icons/md";
 import {getChat , sendMessage} from "../../Network/Document_api.ts";
 import {useLocation , useNavigate , useParams} from "react-router-dom";
@@ -17,6 +17,10 @@ import {useCheckImage} from "../../Util/checkImage.ts";
 import styles from "../../Style/messageRoom.module.css"
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import { useSocket} from "../../Context/socketContext.tsx";
+import {IoCheckmarkDone} from "react-icons/io5";
+import { ToastContainer} from "react-toastify";
+import {Toast} from "../../Util/Toast.ts";
+import {formatDate} from "../../Util/dateFormat.ts";
 
 interface chatProperties {
     _id : string,
@@ -33,7 +37,8 @@ interface chatProperties {
     chatId : string,
     // chatName : string,
     // customer : string,
-    message : string
+    message : string,
+    createdAt ? : string | undefined
 
 }
 
@@ -90,40 +95,23 @@ export function MessageRoom() {
         to : location?.state?.secondNameId ? location?.state?.secondNameId : location?.state?.chatDetails?.secondUserId?._id != currentuser._id ? location?.state?.chatDetails?.secondUserId?._id : location?.state?.chatDetails?.firstUserId?._id ,
         from : currentuser._id,
         message : "",
-        name :  `${location?.state?.propertyName} - ${location?.state?.customer} `,
+        name :  `${location?.state?.propertyName}  `,
         customer :  location?.state?.customer ,
         propertyImage : location?.state?.propertyImage
     })
 
-    const {    socketConn : socket, setSelected } = useSocket()
+    const {    socketConn : socket, setSelected, notification } = useSocket()
 
-    console.log(location)
+    // console.log(location)
 
     // let count = useMemo(()=>{return 0}, [])
 
 
-
-
-    // const socket  = useMemo(()=>{
-    //     return  io(api_route,{
-    //         transports: ['websocket','polling'],
-    //         // path : '/api/chat',
-    //         // reconnectionAttempts: 5
-    //         // hostname: 'localhost',
-    //         // secure: false,
-    //         // port: '5000'
-    //     })
-    // },[id])
-
-    // selectedChatCompare = useMemo(()=>{
-    //     return id
-    // },[id])
-
-
-    // const resetNotif = () => {
-    //     notification.filter(notif=>notif.chatId != id)
-    // }
-
+    useEffect ( () => {
+        window.onpopstate = ()=>{
+            socket?.emit("leave room", id)
+        }
+    } , [] );
 
 
     useEffect(()=>{
@@ -153,18 +141,11 @@ export function MessageRoom() {
                     // setMessages( [...res?.messages])
                     console.log(res)
                     socket?.emit("join chat", id)
-                    if(currentuser._id != res[res.length-1].from._id) socket?.emit("mark as read", id , currentuser._id)
+                    if(currentuser._id != res[res.length-1]?.from?._id) {
+                        socket?.emit ( "mark as read" , id , currentuser._id )
+                    }
                 })
-                // .then(()=>{
-                //     socket?.on("userJoined",(chatData)=>{
-                //         console.log("userJoined : ", chatData)
-                //         id && setSelected(id)
-                //
-                //         // setNotification(newNotif)
-                //         // console.log(notification)
-                //         // console.log(newNotif)
-                //     })
-                // })
+
         })()
 
         // selectedChatCompare = id
@@ -173,25 +154,30 @@ export function MessageRoom() {
 
     },[])
 
-    // useCallback(()=>{
-    //     setSelected(id)
-    // },[id])
-
-
-    // console.log(socketConnected)
-
-
-    // useEffect ( () => {
-    //
-    //
-    //
-    //     selectedChatCompare = id
-    //     id && setSelected(id)
-    //
-    // } , [] );
 
     socket?.on("userJoined",(chatData)=> {
         console.log ( "userJoined : " , chatData )
+    })
+
+    socket?.on("property deleted",(ID)=>{
+        if(id?.includes(ID)){
+
+            Toast.error("Property deleted")
+
+            setTimeout(()=>{
+                navigate("/message")
+            },2000)
+        }
+    })
+
+    socket?.on("chat deleted",(ID)=>{
+        if(id === ID){
+
+            Toast.error("Chat deleted")
+            setTimeout(()=>{
+                navigate("/message")
+            },2000)
+        }
     })
 
 
@@ -231,35 +217,9 @@ export function MessageRoom() {
 
         eleRef.current?.scrollIntoView();
 
-        // console.log(selectedChatCompare)
-
-        // setSelected(selectedChatCompare)
-
-
-
-        // socket?.on("updated convo", (lastConversation) => {
-        //     setConvoDetails(lastConversation)
-        //
-        // });
-
-        // socket?.on("userJoined",(chatId) => {
-        //     if(chatId)
-        // })
 
         socket?.on("message received", (newMessageRecieved) => {
 
-            // console.log("message received" )
-
-            // console.log(selectedChatCompare)
-            // console.log(newMessageRecieved.chatId)
-
-            // id && setSelected(id)
-
-            // if (
-            //     !selectedChatCompare || // if chat is not selected or doesn't match current chat
-            //     selectedChatCompare !== newMessageRecieved.chatId
-            // ) setSelected(false)
-            // else setSelected(true)
 
             console.log(newMessageRecieved)
 
@@ -343,13 +303,19 @@ export function MessageRoom() {
     }
 
 
+    let unreadStatus = useMemo(()=>{
+        return notification?.unReadCount || location.state?.chatDetails?.unReadCount
+    },[notification?.unReadCount, location.state?.chatDetails ])
+
+
 
     return (
+        <>
         <Box>
             <Box className="p-2" >
                 <Stack direction="row" display="flex" gap={1} mb={1} alignItems="center">
                     <Typography className=" fs-4 p-1 text-capitalize">
-                        {location?.state?.chatDetails ? currentuser._id === location?.state?.chatDetails?.firstUserId?._id ? location?.state?.chatDetails?.chatName.split("-")[0] : location?.state?.chatDetails?.chatName :` ${location?.state?.propertyName} - ${location?.state?.secondNameId}`}
+                        {location?.state?.chatDetails ? currentuser._id === location?.state?.chatDetails?.firstUserId?._id ? location?.state?.chatDetails?.chatName : `${location?.state?.chatDetails?.chatName} - ${location?.state?.chatDetails?.customer}`  :` ${location?.state?.propertyName} - ${location?.state?.name}`}
                     </Typography>
                     <button
                         onClick={()=>{
@@ -366,6 +332,8 @@ export function MessageRoom() {
                                 message={chat?.message}
                                 isSentByCurrentUser={currentuser._id === chat?.from._id}
                                 avatar={chat?.from?.avatar }
+                                unread={ index >= chats.length  - (unreadStatus)}
+                                sentAt={chat?.createdAt}
                             />
                         ))}
                         {
@@ -422,15 +390,20 @@ export function MessageRoom() {
                 </Box>
             </Box>
         </Box>
+            <ToastContainer
+                position="top-center"
+                autoClose={5000}
+
+            />
+        </>
     );
 }
 
-function ChatBubble({ message, isSentByCurrentUser, avatar } : {message : string | undefined, isSentByCurrentUser : boolean, avatar : string | undefined}) {
+function ChatBubble({ message, isSentByCurrentUser, avatar, unread, sentAt } : {message : string | undefined, isSentByCurrentUser : boolean, avatar : string | undefined, unread : boolean, sentAt : string}) {
 
     const validImage = useCheckImage(message , "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png")
 
     const [enlarge, setEnlarge] = useState<boolean>(false)
-
 
     return (
         <Box
@@ -459,12 +432,16 @@ function ChatBubble({ message, isSentByCurrentUser, avatar } : {message : string
                                 className={ `h-100 w-100 rounded-full `}
                                 onClick={()=>setEnlarge(!enlarge)}
                             /> :
-                            <Typography variant="body2" style={{ color: isSentByCurrentUser ? 'black' : 'black' }}>
+                            <Typography variant="body2" >
+
                                 {message}
+                                { isSentByCurrentUser && <span className="float-end"><IoCheckmarkDone color={ ` ${unread ? "black" : "blue"  } ` }/></span> }
+
                             </Typography>
                         }
 
                     </Paper>
+                    <Typography fontSize={12}  color="#7191a5" >{formatDate(sentAt)}</Typography>
                 </Stack>
             </Box>
         </Box>

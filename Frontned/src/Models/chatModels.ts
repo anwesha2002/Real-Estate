@@ -8,13 +8,24 @@ export interface ChatModels{
 }
 
 export interface ChatRoommodels{
-    firstUserId : string,
-    secondUserId : string,
-    unReadCount : number,
-    lastMessage : {
-        from : string
-    },
-    chatId : string,
-    chatName : string,
-    customer : string,
+    firstUserId? : {
+        avatar : string | undefined,
+        name : string | undefined,
+        _id : string | undefined
+    } | undefined,
+    secondUserId? : {
+        avatar : string | undefined,
+        name : string | undefined,
+        _id : string | undefined
+    } | undefined,
+    unReadCount : number ,
+    lastMessage? : {
+        from : string | undefined,
+        to : string | undefined,
+        _id : string | undefined,
+    } | undefined,
+    chatId? : string | undefined,
+    chatName? : string | undefined,
+    customer? : string | undefined,
+
 }

@@ -1,11 +1,19 @@
-import { useCallback , useEffect , useMemo , useState} from "react";
-import { getAgentsById} from "../Network/Document_api.ts";
-import {Badge , Box , Stack , Typography} from "@mui/material";
+import {ElementType  , useCallback , useEffect   , useState} from "react";
+import {clearChat , deleteChat , getAgentsById} from "../Network/Document_api.ts";
+import {
+    Badge ,
+    Box ,
+    Button , CircularProgress ,
+    Popover ,
+    Stack ,
+    Typography
+} from "@mui/material";
 import { MdLocationCity } from "react-icons/md";
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSocket} from "../Context/socketContext.tsx";
 import _ from "lodash"
 import {Toast} from "../Util/Toast.ts";
+import { HiDotsVertical} from "react-icons/hi";
 
 
 interface chatIds {
@@ -30,104 +38,13 @@ export function Messages() {
     const currentUser = JSON.parse(userData)
     const [allChats, setAllChats] = useState<any[]>([])
     const navigate = useNavigate()
+    const [open, setOpen] = useState<boolean>(false)
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const {socketConn,notification, setNotification} =  useSocket()
+    const [clearChatLoading, setClearChatLoading] = useState<boolean>(false)
+    const [deleteChatLoading, setDeleteChatLoading] = useState<boolean>(false)
 
     useCallback(()=>{setNotification(notification)},[notification])
-
-    // const socket  = useMemo(()=>{
-    //     return io(`${api_route}`,{
-    //         transports: ['websocket','polling'],
-    //         // path : '/api/chat',
-    //         // reconnectionAttempts: 5
-    //         // hostname: 'localhost',
-    //         // secure: false,
-    //         // port: '5000'
-    //     })
-    // },[currentUser])
-
-    // let socekt = useMemo(()=>{
-    //     return io(`${api_route}/message`
-    //     // ,{
-    //     //     path : api_route
-    //     // }
-    //     )
-    // },[])
-
-    // const socket  = useMemo(()=>{
-    //     return   io(api_route,{
-    //         transports: ['websocket','polling'],
-    //         // path : '/api/chat',
-    //         // reconnectionAttempts: 5
-    //         // hostname: 'localhost',
-    //         // secure: false,
-    //         // port: '5000'
-    //     })
-    // },[])
-
-    // const [notif, setNotif] = useState()
-
-    // useEffect(()=>{
-    //
-    //     if(!socketConn) return
-    //
-    //     socketConn.on("message received",(newMessage)=>{
-    //         if(!selected){
-    //             setNotification([newMessage,...notification])
-    //         }
-    //     })
-    //
-    //     // socketConn?.emit("setup",currentUser)
-    //     // socketConn?.on("connected",(userdata)=>{
-    //     //     console.log("connected",userdata)
-    //     // })
-    //
-    //     console.log(notification)
-    // })
-
-    // console.log(notification)
-    // console.log(socketConn)
-
-
-    // const existingNotif  = JSON.parse(localStorage.getItem("notification"))
-
-    // useEffect(()=>{
-    //
-    //     setNotification(existingNotif || [])
-    // },[setNotification])
-
-
-    // Object.entries(existingNotif)
-
-    // console.log(existingNotif)
-
-
-    // console.log(notifGroup)
-
-
-    // console.log(socketConn)
-    // console.log(users)
-
-    // useEffect(()=>{
-    //
-    //     socketConn?.on("message received", (newMessageRecieved) => {
-    //
-    //         console.log(notification)
-    //         console.log(newMessageRecieved)
-    //     });
-    //
-    //     console.log(notification)
-    // },[notification,socketConn])
-
-
-    // async function isUserInRoom(currentUser?._id, room) {
-    //     const sockets = await io.in(room).fetchSockets();
-    //     return sockets.some(socket => socket.id === userId); // Check if any socket matches the userId
-    // }
-
-
-    // useEffect ( () => {
-    //     socket.leave("myRoom");
-    // } , [] );
 
 
     useEffect ( () => {
@@ -136,7 +53,6 @@ export function Messages() {
             await getAgentsById(currentUser?._id)
                 .then((res)=>{
                     console.log(res)
-                    socketConn?.emit("leave room", notification?.chatId)
                     setNotification(null)
                     // setNotification(notifGroup)
                     return res.allChatIds as chatIds[]
@@ -146,17 +62,55 @@ export function Messages() {
                 })
                 .catch((err)=>Toast.error(err?.message || err?.response?.data?.message || "Couldn't fetch agent detail"))
         })()
-    } , [] );
+    } , [notification] );
+
 
     socketConn?.on("userLeft",(id : string)=> {
         console.log ( "userLeft : " , id )
     })
 
-    const notifGroup = useMemo(()=>{return  _.groupBy(allChats,'chatId')},[])
-    //
-    console.log(notifGroup)
-    // console.log(allChats)
 
+    async function clearchat(id : string){
+        setClearChatLoading(true)
+        await clearChat(id)
+            .then(()=>{
+                setClearChatLoading(false)
+                console.log("cleared")
+            })
+            .catch((err)=>Toast.error(err?.message || err?.response?.data?.message || "Couldn't clear chat"))
+    }
+
+    async function deletechat(e : MouseEvent , id : string){
+        setDeleteChatLoading(true)
+        e.stopPropagation()
+        console.log("start deleting")
+        try {
+            console.log("About to call deleteChat");
+            await deleteChat(id)
+            console.log("Updating state...");
+            setAllChats(prevState =>  prevState.filter(chat => chat?.chatId !== id) )
+            console.log("deleted")
+        }catch (err : any){
+            Toast.error(err?.message || err?.response?.data?.message || "Couldn't delete chat")
+        }finally {
+            console.log("Setting loading to false");
+            setDeleteChatLoading(false)
+            setOpen(false)
+            setAnchorEl(null)
+        }
+        // deleteChat(id)
+        //     .then(()=>{
+        //
+        //         setAllChats(prevState =>  prevState.filter(chat => chat.id !== id) )
+        //         console.log("deleted")
+        //
+        //     })
+        //     .catch((err)=>Toast.error(err?.message || err?.response?.data?.message || "Couldn't delete chat"))
+
+
+    }
+
+    const id = open ? 'simple-popover' : undefined;
 
     return (
         <Box flexGrow={1}>
@@ -203,12 +157,13 @@ export function Messages() {
                         }}
                     >
                         <Stack
-                            direction="column"
+                            direction="row"
                             justifyContent="space-between"
+                            alignItems="center"
                             flex={1}
                             gap={{ xs: 4, sm: 2 }}
                         >
-                            <Stack gap={2} direction="row" flexWrap="wrap" alignItems="center">
+                            <Stack  gap={2} direction="row" flexWrap="wrap" alignItems="center" width="fit-content">
 
                                 <Badge color="primary" badgeContent={notification ? notification.chatId === chat.chatId ?  notification?.unReadCount : 0 : chat?.lastMessage?.from === currentUser?._id ? 0 : chat?.unReadCount  } anchorOrigin={{
                                     vertical: 'bottom',
@@ -227,7 +182,8 @@ export function Messages() {
                                 {/*        <Typography fontSize={22} display="flex" alignSelf="start" color="#11142d" className="text-capitalize">{ chat?.customer }</Typography> :*/}
                                         <Stack display="flex" alignSelf="start">
                                             <Typography fontSize={22} fontWeight={500}  color="#11142d" className="text-capitalize">
-                                                { currentUser?._id === chat.firstUserId._id ? (chat.chatName)?.split ( "-" )[0] + "-" + chat.secondUserId.name : chat.chatName }
+                                                { chat.chatName }
+                                                {/*{ currentUser?._id === chat.firstUserId._id ? (chat.chatName)?.split ( "-" )[0] + "-" + chat.secondUserId.name : chat.chatName }*/}
                                                 {/*{ (chat.chatName)?.split ( "-" )[0] }*/}
                                             </Typography>
                                             <span className="text-capitalize text-body-tertiary fs-6">{ currentUser?._id === chat.secondUserId._id ? chat?.firstUserId?.name : chat?.secondUserId?.name }</span>
@@ -245,9 +201,61 @@ export function Messages() {
                                 {/*</Typography>*/}
                             </Stack>
 
+                            <Box>
+
+                                <Button aria-describedby={id} variant="text" size="small" color="secondary"
+
+                                    className="text-secondary "
+
+                                    onClick={(e )=> {
+                                        e.stopPropagation()
+                                        e.preventDefault()
+                                        setAnchorEl(e.currentTarget);
+                                        setOpen ( !open )
+                                    }}
+                                >
+                                    <HiDotsVertical size={ 26 }/>
+                                </Button>
+
+                                <Popover
+                                    id={id}
+                                    open={open}
+                                    anchorEl={anchorEl}
+                                    onClose={(e : MouseEvent)=> {
+                                        if (e) {
+                                            e.stopPropagation();
+                                        }
+                                        setAnchorEl ( null )
+                                        setOpen(false);
+                                    }}
+                                    anchorOrigin={{
+                                        vertical: 'bottom',
+                                        horizontal: 'left',
+                                    }}
+                                    transformOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'center',
+                                    }}
+                                >
+                                    <Box display="flex" flexDirection="column" border={1} borderColor="#e0e0e0" >
+                                        {clearChatLoading ?
+                                            <CircularProgress size={20} color="inherit" className="me-2"/>  : <Typography component={Button as ElementType} onClick={()=>clearchat(chat?.chatId)}  sx={{ p: 2 }} borderBottom={1}>Clear Chat</Typography>
+                                        }
+                                        {
+                                            deleteChatLoading ?
+                                                <CircularProgress size={20} color="inherit" className="me-2"/> :
+                                                <Typography component={Button as ElementType} onClick={(e : MouseEvent)=> deletechat (e , chat?.chatId )
+                                                } sx={{ p: 2 }}>Delete Chat</Typography>
+                                        }
+
+                                    </Box>
+                                </Popover>
+
+                            </Box>
+
                         </Stack>
                     </Box>
-                ))}
+                    ) ) }
             </Box>
         </Box>
     );

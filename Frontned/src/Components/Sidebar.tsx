@@ -1,7 +1,7 @@
 import "../Style/Sidebar.scss"
-import {useState} from "react";
+import { useState} from "react";
 import {MdArrowBack , MdArrowForward , MdLogout ,} from "react-icons/md";
-import {useNavigate} from "react-router-dom";
+import {useLocation , useNavigate} from "react-router-dom";
 import {useSidebar} from "../Context/SidebarContext.tsx";
 import {
     Box ,
@@ -14,6 +14,8 @@ import {
     useTheme
 } from "@mui/material";
 import {resourceProps} from "../Screen/HomeScreen.tsx";
+import {useSocket} from "../Context/socketContext.tsx";
+import {usePrevLocation} from "./Hooks/UsePrevLocation.ts";
 
 interface sidebarProps {
     resources : resourceProps[],
@@ -26,18 +28,41 @@ export function Sidebar({drawerOpen,resources} : sidebarProps){
     const navigate= useNavigate()
     const theme = useTheme()
 
+    const userData = localStorage.getItem("tokens")
+
+    if(userData == null) return
+
     const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"))
 
     const { open, setOpen   } = useSidebar()
+
+    const {socketConn} =  useSocket()
+
+    const location = useLocation()
+
+    const prevLocation = usePrevLocation(location)
 
     function handleClick(){
         setOpen(!open)
     }
 
     function logout(){
+        if(prevLocation.pathname.includes("/messageRoom/") ) {
+            socketConn?.emit("leave room", prevLocation?.state?.chatDetails?.chatId)
+        }
         localStorage.removeItem("tokens")
         navigate("/")
     }
+
+    socketConn?.on("userLeft",(id : string)=> {
+        console.log ( "userLeft : " , id )
+    })
+
+
+
+    console.log( prevLocation )
+
+
 
 
     return(
@@ -58,10 +83,15 @@ export function Sidebar({drawerOpen,resources} : sidebarProps){
                                 <ListItemButton selected={isSelected === value.name} onClick={ (e: any) => {
                                     e.preventDefault ()
                                     setIsSelected ( e.target.textContent )
+                                    if(prevLocation.pathname.includes("/messageRoom/") ) {
+                                        socketConn?.emit("leave room", prevLocation?.state?.chatDetails?.chatId)
+                                    }
                                     navigate(`/${value.link}`)
                                 } } className={ `d-flex flex-nowrap  rounded rounded-3 } ` }>
                                 {/*<li  >*/}
                                     <ListItemIcon>{ value?.icon }</ListItemIcon>
+
+
                                     <ListItemText className={ ` ${open ? "" : "d-none"} ` } primary={value?.name}/>
                                     {/*<span className={ `ms-4 ${open ? "" : "d-none"} ` }>{  }</span>*/}
                                 {/*</li>*/}

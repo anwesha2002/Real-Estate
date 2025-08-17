@@ -216,4 +216,74 @@ export const updateConversation  = async (id : string) => {
 
 }
 
-export {sendMessage, getChatByChatId}
+const clearChat : RequestHandler<messageId,unknown, unknown, unknown> = async (  req, res, next) => {
+
+    const {id } = req.params
+
+    try {
+
+        const session = await mongoose.startSession()
+
+        session.startTransaction()
+
+        await messageModel.deleteMany({ chatId : id })
+        await charRoomModel.findOneAndUpdate(
+            { chatId : id},
+            {
+                $set : {unReadCount : 0},
+            }
+        )
+
+        await session.commitTransaction()
+    }
+    catch (err){
+        next(err)
+    }
+}
+
+const deleteChat : RequestHandler<messageId,unknown, unknown, unknown> = async (  req, res, next) => {
+
+    const {id } = req.params
+
+    const io = getIO()
+
+    try {
+
+        const existingChat = await charRoomModel.findOne({ chatId : id }) as chatRoomType
+        if(!existingChat) throw createHttpError(400, "Chat not found")
+
+        const user1 = await UserModel.findById({ _id : existingChat.firstUserId }) as userType
+        const user2 = await UserModel.findById({ _id : existingChat.secondUserId }) as userType
+
+
+        const session = await mongoose.startSession()
+
+        session.startTransaction()
+
+        await charRoomModel.deleteOne({ chatId : id }, {session})
+        await messageModel.deleteMany({ chatId : id }, {session})
+
+        await UserModel.updateMany(
+            { _id : { $in : [existingChat.firstUserId , existingChat.secondUserId] } },
+            { $pull : {
+                    allChatIds : existingChat._id
+                }
+            },
+            {new : true}
+        )
+
+        await user1.save({session})
+        await user2.save({session})
+
+        await session.commitTransaction()
+
+        await io.emit("chat deleted", id)
+
+        res.status(200).json("Property deleted successfully")
+    }
+    catch (err){
+        next(err)
+    }
+}
+
+export {sendMessage, getChatByChatId, clearChat, deleteChat}

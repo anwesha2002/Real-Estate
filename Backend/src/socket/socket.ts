@@ -65,6 +65,7 @@ const getIO = () => {
 
             socket.on("mark as read",async (chatId : string, userId : string)=>{
                 await updateConversation(chatId)
+                io.emit("read")
             })
 
             socket.on('typing',(room : {chatId: string | undefined, id: string})=> {
@@ -78,6 +79,7 @@ const getIO = () => {
 
             socket.on("leave room",(chatId : string) => {
                 socket.leave(chatId)
+                console.log("user left", chatId)
                 socket.emit("userLeft", chatId)
             })
 

@@ -12,18 +12,20 @@ import {api_route } from "../Network/Document_api.ts";
 import {ChatRoommodels} from "../Models/chatModels.ts";
 
 interface socketContextProps {
-    setUserConnected : Dispatch<SetStateAction<boolean>>
-    userConnected : boolean
-    setUsers : Dispatch<SetStateAction<any[]>>
-    users : any[]
+    // setUserConnected : Dispatch<SetStateAction<boolean>>
+    // userConnected : boolean
+    // setUsers : Dispatch<SetStateAction<any[]>>
+    // users : any[]
     setSocketConn : Dispatch<SetStateAction<Socket | any | null >>
     socketConn : Socket | null
     setNotification : Dispatch<SetStateAction<ChatRoommodels | null>>
     notification : ChatRoommodels | null
-    setAuthUser : Dispatch<SetStateAction<any>>
-    authUser : any
+    // setAuthUser : Dispatch<SetStateAction<any>>
+    // authUser : any
     setSelected : Dispatch<SetStateAction<string>>
     selected : string
+    // setTotalUnreadCount : Dispatch<SetStateAction<number>>
+    // totalUnreadCount : number
 }
 
 const socketContext = createContext({} as socketContextProps)
@@ -39,11 +41,11 @@ export function SocketContextProvider({children} : {children : ReactNode}){
     //
     // console.log(existingNotif)
 
-    const [ userConnected , setUserConnected ] = useState<boolean>(false)
-    const [ users , setUsers ] = useState<any[]>([])
+    // const [ userConnected , setUserConnected ] = useState<boolean>(false)
+    // const [ users , setUsers ] = useState<any[]>([])
     const [ socketConn , setSocketConn ] = useState<Socket | any | null>(null)
     const [ notification , setNotification ] = useState<ChatRoommodels | null>(null)
-    const [authUser, setAuthUser] = useState<any | null>(null)
+    // const [authUser, setAuthUser] = useState<any | null>(null)
     const [selected, setSelected] = useState<string>("")
 
     const userData = localStorage.getItem("tokens")
@@ -113,12 +115,17 @@ export function SocketContextProvider({children} : {children : ReactNode}){
 
         })
 
+        socketConn.on("read",()=>{
+            // const notif = {...notification, unReadCount : 0}
+            setNotification(null)
+        })
+
         // console.log(notification)
     })
 
 
     return(
-        <socketContext.Provider  value={{userConnected, setUserConnected, setUsers, users, setSocketConn, socketConn, notification, setNotification, setAuthUser, authUser, selected, setSelected}}>
+        <socketContext.Provider  value={{ setSocketConn, socketConn, notification, setNotification,  selected, setSelected}}>
             {children}
         </socketContext.Provider>
     )

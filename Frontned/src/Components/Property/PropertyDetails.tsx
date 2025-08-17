@@ -7,7 +7,7 @@ import {MdChatBubble , MdDelete , MdEdit , MdPhone , MdPlace} from "react-icons/
 import logo from "../../assets/img.png"
 import {UserModels} from "../../Models/UserModels.ts";
 import {CustomButton} from "../CustomButton.tsx";
-import {toast , ToastContainer} from 'react-toastify';
+import { ToastContainer} from 'react-toastify';
 import {useCheckImage} from "../../Util/checkImage.ts";
 import {Toast} from "../../Util/Toast.ts";
 
@@ -51,18 +51,17 @@ export function PropertyDetails() {
         if(response){
             DeleteProperty ( id )
                 .then((res) => {
-                    toast(res, {
-                        position : "top-center",
-                        draggable: true,
-                        type: "error",
-                        // transition: Bounce,
-                        theme : "colored"
-                    })
 
                     setTimeout(() => {
                         navigate('/property');
                     }, 2000);
 
+                    return res
+
+                })
+                .then((res)=>{
+
+                    Toast.error(res)
                 })
                 .catch(err=>Toast.error(err?.message || err?.response?.data?.message || "Couldn't delete property"))
         }

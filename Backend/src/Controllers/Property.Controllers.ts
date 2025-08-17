@@ -10,6 +10,8 @@ import mongoose , {Schema , SortOrder , startSession} from "mongoose";
 import { RequestHandler} from "express";
 import {couch} from "globals";
 import createHttpError from "http-errors";
+import charRoomModel from "../Models/chatRoom";
+import {getIO} from "../socket/socket";
 
 cloudinary.config({
     cloud_name: env.CLOUDINARY_CLOUD_NAME,
@@ -156,6 +158,10 @@ const updateProperty : RequestHandler<detailsPramsProps, unknown, CreateProperty
 
         if (!existingProperty) throw createHttpError(404,"Property not found")
 
+        const existingChat = await charRoomModel.find({ chatId : { $regex : id }})
+
+        const chatIds = existingChat.map(chat => chat._id )
+
         const sum = rating && (
             (existingProperty.rating5 ? existingProperty.rating5 *5 : 0)
             + (existingProperty.rating4 ? existingProperty.rating4 *4 : 0) +
@@ -205,6 +211,15 @@ const updateProperty : RequestHandler<detailsPramsProps, unknown, CreateProperty
 
         console.log(newProperty)
 
+        await chatRoomModel.updateMany({
+            _id : { $in : chatIds }
+        },{
+            $set : {
+                chatName : title,
+                propertyImage : photoURL.url || photo
+            }
+        })
+
         res.status(200).json(newProperty)
 
     }catch (err : any){
@@ -215,12 +230,18 @@ const updateProperty : RequestHandler<detailsPramsProps, unknown, CreateProperty
 
 const deleteProperty : RequestHandler<detailsPramsProps,unknown, unknown, unknown> = async (req, res, next) => {
 
-
     try {
         const {id }= req.params
 
+        const io = getIO()
+
         const PropertyToDelete = await PropertyModel.findById({_id : id}).populate('creator') as PropertyType
         if(!PropertyToDelete) throw createHttpError("Property not found")
+
+        const chatRoom = await chatRoomModel.find({chatId : { $regex : `${id}` }})
+
+        const chatRoomIds = chatRoom.map(room => room._id )
+        const firstUserIds = chatRoom.map(room => room.firstUserId )
 
         const session = await mongoose.startSession()
 
@@ -231,16 +252,27 @@ const deleteProperty : RequestHandler<detailsPramsProps,unknown, unknown, unknow
         await UserModel.findByIdAndUpdate(
             PropertyToDelete.creator?._id,
             { $pull : {
-                allProperties : id
+                    allProperties : id,
+                    allChatIds : { $in : chatRoomIds }
+                }
+            }
+        )
+
+        await UserModel.updateMany(
+            { _id : { $in : firstUserIds } },
+            { $pull : {
+                    allChatIds : { $in : chatRoomIds }
                 }
             },
         )
 
-        await chatRoomModel.deleteOne({ chatId : { $regex : `${id}` } }, {session})
+        await chatRoomModel.deleteMany({ chatId : { $regex : `${id}` } }, {session})
         await messageModel.deleteMany({ chatId : { $regex : `${id}` } }, {session})
 
         await PropertyToDelete.creator?.save({ session });
         await session.commitTransaction();
+
+        await io.emit("property deleted", id)
 
         res.status(200).json("Property deleted successfully")
 
