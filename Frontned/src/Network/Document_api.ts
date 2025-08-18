@@ -12,8 +12,8 @@ type getPropertiesQuery = {
     sort_parameter : string
 }
 
-// export const api_route = "https://real-estate-ueor.onrender.com"
-export const api_route = "http://localhost:5000"
+export const api_route = "https://real-estate-ueor.onrender.com"
+// export const api_route = "http://localhost:5000"
 
 export async function signUp( credentials : UserModels ) : Promise<UserModels> {
     // const {name, email, avatar} = credentials
