@@ -120,3 +120,5 @@ npm run dev
  - Analytics Dashboard: Visualize sales, revenue, and property stats.
    
 ## 📸 Screenshots
+
+<img width="2192" height="1120" alt="Untitled (21)" src="https://github.com/user-attachments/assets/fa2aa6a5-d3c2-432e-9112-e07810851572" />
