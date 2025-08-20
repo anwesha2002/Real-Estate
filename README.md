@@ -1,7 +1,7 @@
 # Real Estate App
 
 
-A modern, full-stack real estate platform for property listings, agent management, and real-time chat using websocket. Built with a robust Node.js/Express backend and a sleek React + Vite frontend, this project is designed for scalability, performance, and a seamless user experience.
+A modern, full-stack real estate platform for property listings, agent management, and real-time chat using websocket. Built with a robust Node.js/Express backend and a sleek React and TypeScript frontend, this project is designed for scalability, performance, and a seamless user experience.
 
 
 <div display="flex" align="center" class="text-center">
