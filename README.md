@@ -16,11 +16,14 @@ A modern, full-stack real estate platform for property listings, agent managemen
 ## 🚀 Features
  - Property Listings: Browse, search, and filter properties with rich details and images.
  - Agent Management: View agent profiles, contact agents, and manage your own profile.
- - Real-Time Chat: Secure, instant messaging between users and agents using WebSockets.
+ - Real-Time Chat: Secure, instant messaging, live notification between users and agents and typing indicator, Recipient's availability using WebSockets.
  - Dashboard Analytics: Visualize data with interactive charts and revenue tracking.
  - Authentication: Secure login and user management.
  - Responsive Design: Optimized for desktop and mobile devices.
  - Modern UI: Clean, intuitive interface with custom components and SCSS styling.
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/ecc1abd8-5e34-4a05-a8ef-b660046b815c" />
+
    
 ## 🏗️ Project Structure
 
