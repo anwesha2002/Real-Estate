@@ -22,7 +22,7 @@ interface userId{
 }
 
 interface UserDetails{
-    name : string,
+    name? : string,
     email : string,
     avatar? : string
     address? : string
@@ -40,42 +40,38 @@ const getAllUsers : RequestHandler = async (req, res, next) => {
         res.status(500).json(err.message)
     }
 }
-const createUser : RequestHandler<unknown, unknown, SignUpBody, unknown>  = async (req , res, next ) => {
-        const { name, email, avatar } = req.body
+const createUser: RequestHandler<unknown, unknown, SignUpBody, unknown> = async (req, res, next) => {
     try {
+        const { name, email, avatar } = req.body;
 
-        if(!name || !email){
-            throw createHttpError(" Fill all the fields ")
+        if (!name || !email) {
+            throw createHttpError(400, "Please fill all the fields");
         }
 
-        const existedUser =  await UserModel.findOne({email : email}).populate('allChatIds')
+        const existedUser = await UserModel.findOne({ email }).populate('allChatIds');
 
-        if(existedUser) {
-            res.status ( 200 ).json ( existedUser )
-            return
+        if (existedUser) {
+            throw createHttpError(409, "User already exists");
         }
 
-        if(!avatar){
-            throw createHttpError("picture not found")
+        if (!avatar) {
+            throw createHttpError(400, "Avatar is required");
         }
 
-        const newUser = await UserModel.create({
-            name : name ,
-            email : email,
-            avatar : avatar
-        })
+        const newUser = await UserModel.create({ name, email, avatar });
 
-       res.status(201).json(newUser)
-    }catch (error) {
+        res.status(201).json(newUser);
+    } catch (error) {
         next(error);
     }
-}
+};
 
 const loginUser : RequestHandler<unknown, unknown, SignUpBody, unknown>  = async (req , res, next ) => {
-    const { name, email } = req.body
+
+    const {  email } = req.body
     try {
 
-        if(!name || !email){
+        if( !email){
             throw Error("not found")
         }
 
@@ -85,6 +81,7 @@ const loginUser : RequestHandler<unknown, unknown, SignUpBody, unknown>  = async
             throw createHttpError(404,"user not found")
 
         }
+        console.log("existedUser", existedUser)
 
         res.status(200).json(existedUser)
     }catch (error) {

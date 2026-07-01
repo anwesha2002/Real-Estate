@@ -34,15 +34,18 @@ export function Login() {
     async function onSubmit(data : UserModels) {
         // console.log( { ...data, avatar : photo })
 
-        if(!data || !photo) {
-            Toast.error("Profile photo not found")
+        if(!data ) {
+            Toast.error("Fill the Fields")
             return
         }
 
        await signUp ( { ...data, avatar : photo } )
            .then ( (res )  => localStorage.setItem("tokens", `${JSON.stringify(res)}`) )
            .then(()=>navigate("/dashboard"))
-           .catch((err)=>Toast.error(err?.message || err?.response?.data?.message || 'Failed to sign-up'))
+           .catch((err)=> {
+               console.log(err)
+               Toast.error(`${err}` || err?.response?.data?.message || 'Failed to sign-up')
+           })
     }
 
     function handleImageChange(file : FileList | null){

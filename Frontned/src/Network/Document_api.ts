@@ -42,9 +42,9 @@ export async function signUp( credentials : UserModels ) : Promise<UserModels> {
         return data
     }else {
         // return Promise.reject()
-        const errorBody = await response.json();
-        const errorMessage = errorBody.error;
-        throw Error("request fail with" + errorMessage)
+        // const errorBody = await response.json();
+        // const errorMessage = errorBody.error;
+        throw Error( data.error)
     }
     // }
     //     return response

@@ -48,11 +48,11 @@ export function SignIn() {
 
                     <form className="bg-white m-3  p-4 w-auto rounded-3" onSubmit={handleSubmit(onSubmit)}>
                         <FormGroup className="  gap-4 ">
-                            <FormControl className="gap-1">
-                                <FormLabel htmlFor="name">Enter Name</FormLabel>
-                                <OutlinedInput error={!!errors.name} color="info" type="text" id="name"  required {...register("name")}  />
-                                {errors?.name && <FormHelperText>{errors.name.message?.toString()}</FormHelperText>}
-                            </FormControl>
+                            {/*<FormControl className="gap-1">*/}
+                            {/*    <FormLabel htmlFor="name">Enter Name</FormLabel>*/}
+                            {/*    <OutlinedInput error={!!errors.name} color="info" type="text" id="name"  required {...register("name")}  />*/}
+                            {/*    {errors?.name && <FormHelperText>{errors.name.message?.toString()}</FormHelperText>}*/}
+                            {/*</FormControl>*/}
                             <FormControl className="gap-1">
                                 <FormLabel htmlFor="email">Enter Email</FormLabel>
                                 <OutlinedInput error={!!errors.email} color="info" type="text" id="email"  required {...register("email")}  />

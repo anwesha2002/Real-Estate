@@ -146,9 +146,9 @@ export function PropertyDetails() {
                                 <Typography mt="10px" fontSize={16} fontWeight={600} color="#11142D" textTransform="capitalize">Price</Typography>
                                 <Stack direction="row" alignItems="baseline" gap={1}>
                                     <Typography fontSize={25} fontWeight={700} color="#475BE8">${details?.price}</Typography>
-                                    <Typography fontSize={14} color="#808191" >
-                                        for one day
-                                    </Typography>
+                                    {/*<Typography fontSize={14} color="#808191" >*/}
+                                    {/*    for one day*/}
+                                    {/*</Typography>*/}
                                 </Stack>
                             </Box>
                         </Stack>
